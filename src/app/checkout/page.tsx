@@ -69,21 +69,11 @@ export default function CheckoutPage() {
         body: JSON.stringify(pedido)
       });
       if (!res.ok) throw new Error("Error al guardar el pedido");
-      // Enviar mensaje de WhatsApp al cliente
-      const whatsappBody = payment === "transferencia"
-        ? `Hola ${name}, tu pedido en Choripam fue recibido. Recuerda transferir a Nequi ${NEQUI_NUMBER} y enviar el comprobante para confirmar tu pago. Total: $${total.toLocaleString()}`
-        : `Hola ${name}, tu pedido en Choripam fue recibido. Te esperamos para entregarlo. Total: $${total.toLocaleString()}`;
-      await fetch("http://localhost:8000/api/whatsapp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: `whatsapp:+57${phone.replace(/[^0-9]/g, "")}`,
-          body: whatsappBody
-        })
-      });
+      // El backend ahora envía automáticamente los mensajes de WhatsApp
+      console.log("Pedido guardado exitosamente. Los mensajes de WhatsApp se enviarán automáticamente.");
       setOrderSent(true);
       clearCart();
-    } catch (err) {
+    } catch {
       setError("No se pudo guardar el pedido. Intenta de nuevo.");
     } finally {
       setLoading(false);
@@ -91,19 +81,19 @@ export default function CheckoutPage() {
   }
 
   // Mensaje de WhatsApp personalizado
-  const WHATSAPP_NUMBER = "573155707763";
+  const WHATSAPP_NUMBER = phone.replace(/[^0-9]/g, "");
   let whatsappMsg = "";
   if (payment === "transferencia") {
     whatsappMsg = encodeURIComponent(
       `Hola, me gustaría confirmar mi pedido:\n\n${cart
         .map((item) => `- ${item.name} x${item.quantity}`)
-        .join("\n")}\n\nTotal: $${total.toLocaleString()}\nPago: Transferencia bancaria (Nequi)\nEntrega: ${delivery}${delivery === "domicilio" ? `\nDirección: ${address}` : ""}\nNombre: ${name}\nTeléfono: ${phone}\nCorreo: ${email}\n\nYa realicé la transferencia al número ${NEQUI_NUMBER}. Por favor, responde este mensaje con el comprobante de la transacción. Nuestro bot lo analizará automáticamente para confirmar tu pago.`
+        .join("\n")}\n\nTotal: $${total.toLocaleString()}\nPago: Transferencia bancaria (Nequi)\nEntrega: ${delivery}${delivery === "domicilio" ? `\nDirección: ${address}` : ""}${delivery === "mesa" ? `\nMesa: ${mesa}` : ""}\nNombre: ${name}\nTeléfono: ${phone}\nCorreo: ${email}\n\nYa realicé la transferencia al número ${NEQUI_NUMBER}. Por favor, responde este mensaje con el comprobante de la transacción. Nuestro bot lo analizará automáticamente para confirmar tu pago.`
     );
   } else {
     whatsappMsg = encodeURIComponent(
       `Hola, me gustaría confirmar mi pedido:\n\n${cart
         .map((item) => `- ${item.name} x${item.quantity}`)
-        .join("\n")}\n\nTotal: $${total.toLocaleString()}\nPago: Efectivo a la entrega\nEntrega: ${delivery}${delivery === "domicilio" ? `\nDirección: ${address}` : ""}\nNombre: ${name}\nTeléfono: ${phone}\nCorreo: ${email}`
+        .join("\n")}\n\nTotal: $${total.toLocaleString()}\nPago: Efectivo a la entrega\nEntrega: ${delivery}${delivery === "domicilio" ? `\nDirección: ${address}` : ""}${delivery === "mesa" ? `\nMesa: ${mesa}` : ""}\nNombre: ${name}\nTeléfono: ${phone}\nCorreo: ${email}`
     );
   }
 
@@ -117,7 +107,7 @@ export default function CheckoutPage() {
         {orderSent ? (
           <div className="text-center space-y-6">
             <h2 className="text-2xl font-bold text-green-400">¡Pedido realizado!</h2>
-            <p className="text-lg">Te va a llegar un mensaje a tu WhatsApp para confirmar el pago de tu pedido.</p>
+            <p className="text-lg">Te va a llegar un mensaje a tu WhatsApp confirmando tu pedido. También se envió un recibo al negocio.</p>
             <a
               href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMsg}`}
               target="_blank"
@@ -227,7 +217,7 @@ export default function CheckoutPage() {
                 <p className="text-lg font-bold text-yellow-400 mb-2">Transfiere a Nequi</p>
                 <Image src={QR_IMAGE} alt="QR Nequi" width={120} height={120} className="mb-2 rounded-lg" />
                 <p className="text-white text-lg">Número: <span className="font-mono text-yellow-400">{NEQUI_NUMBER}</span></p>
-                <p className="text-sm text-gray-400 mt-2">Luego de transferir, haz clic en "Confirmar pedido" y envía el comprobante al WhatsApp que se abrirá automáticamente.</p>
+                <p className="text-sm text-gray-400 mt-2">Luego de transferir, haz clic en &ldquo;Confirmar pedido&rdquo; y envía el comprobante al WhatsApp que se abrirá automáticamente.</p>
               </div>
             )}
             <div className="flex items-center gap-2">

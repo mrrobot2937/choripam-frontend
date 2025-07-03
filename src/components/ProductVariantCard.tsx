@@ -16,6 +16,14 @@ type Product = {
   variants: Variant[];
 };
 
+type CartProduct = {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  imageUrl?: string;
+};
+
 export default function ProductVariantCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const [selected, setSelected] = useState(0);
@@ -32,13 +40,17 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   }
 
   function handleAdd() {
-    addToCart({
+    if (!variant) return; // Verificación de seguridad
+    
+    const cartProduct: CartProduct = {
       id: Number(`${product.id}${selected}`), // id único por variante
       name: `${product.name} ${variant.label}`,
       price: variant.price,
       description: product.description,
       imageUrl: product.imageUrl,
-    });
+    };
+    
+    addToCart(cartProduct);
   }
 
   return (
@@ -64,7 +76,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
           </button>
         ))}
       </div>
-      <span className="text-yellow-400 font-extrabold text-xl mb-2">${variant.price.toLocaleString()}</span>
+      <span className="text-yellow-400 font-extrabold text-xl mb-2">${variant?.price.toLocaleString() || '0'}</span>
       <button
         className="mt-auto px-4 py-2 rounded-full bg-yellow-400 text-black font-bold hover:bg-yellow-300 transition-colors text-lg shadow-lg"
         onClick={handleAdd}
