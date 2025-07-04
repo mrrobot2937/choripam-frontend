@@ -357,26 +357,34 @@ export default function MenuPage() {
   const filtered = selected ? menuData.filter((s) => s.category === selected) : menuData;
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-8">
-      <h1 className="text-4xl font-extrabold text-center mb-10">Menú</h1>
-      {/* Filtros cool */}
-      <div className="flex flex-wrap gap-3 justify-center mb-10">
-        <button
-          className={`px-5 py-2 rounded-full font-bold border-2 transition-colors ${selected === null ? 'bg-yellow-400 text-black border-yellow-400 shadow' : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'}`}
-          onClick={() => setSelected(null)}
-        >
-          Todos
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            className={`px-5 py-2 rounded-full font-bold border-2 transition-colors ${selected === cat ? 'bg-yellow-400 text-black border-yellow-400 shadow' : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'}`}
-            onClick={() => setSelected(cat)}
-          >
-            {cat}
-          </button>
-        ))}
+    <div className="min-h-screen bg-black text-white">
+      {/* Barra de filtros fija */}
+      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 py-4 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-extrabold text-center mb-6">Menú</h1>
+          {/* Contenedor con scroll horizontal */}
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+            <button
+              className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${selected === null ? 'bg-yellow-400 text-black border-yellow-400 shadow' : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'}`}
+              onClick={() => setSelected(null)}
+            >
+              Todos
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${selected === cat ? 'bg-yellow-400 text-black border-yellow-400 shadow' : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'}`}
+                onClick={() => setSelected(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+      
+      {/* Contenido del menú */}
+      <div className="px-4 py-8">
       {filtered.map((section) => (
         <section key={section.category} className="mb-12">
           <h2 className="text-2xl font-bold mb-4 border-b border-yellow-400 pb-2">{section.category}</h2>
@@ -387,6 +395,7 @@ export default function MenuPage() {
           </div>
         </section>
       ))}
+      </div>
     </div>
   );
 } 

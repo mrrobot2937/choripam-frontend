@@ -1,10 +1,24 @@
 "use client";
 import { useState } from "react";
 
+interface ConfigData {
+  twilio_sid_configured?: boolean;
+  twilio_token_configured?: boolean;
+  twilio_whatsapp_configured?: boolean;
+  twilio_whatsapp_number?: string;
+  error?: string;
+}
+
+interface TestResult {
+  success?: boolean;
+  message?: string;
+  error?: string;
+}
+
 export default function TestPage() {
-  const [config, setConfig] = useState<any>(null);
+  const [config, setConfig] = useState<ConfigData | null>(null);
   const [testNumber, setTestNumber] = useState("");
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [sandboxNumber, setSandboxNumber] = useState("");
 
@@ -14,7 +28,7 @@ export default function TestPage() {
       const res = await fetch("http://localhost:8000/api/whatsapp/test");
       const data = await res.json();
       setConfig(data);
-    } catch (error) {
+    } catch {
       setConfig({ error: "No se pudo conectar al backend" });
     } finally {
       setLoading(false);
@@ -34,7 +48,7 @@ export default function TestPage() {
       });
       const data = await res.json();
       setTestResult(data);
-    } catch (error) {
+    } catch {
       setTestResult({ error: "Error al enviar mensaje de prueba" });
     } finally {
       setLoading(false);
@@ -49,7 +63,7 @@ export default function TestPage() {
       });
       const data = await res.json();
       setTestResult(data);
-    } catch (error) {
+    } catch {
       setTestResult({ error: "Error al enviar mensaje de prueba al negocio" });
     } finally {
       setLoading(false);
@@ -69,7 +83,7 @@ export default function TestPage() {
       });
       const data = await res.json();
       setTestResult(data);
-    } catch (error) {
+    } catch {
       setTestResult({ error: "Error al agregar número al sandbox" });
     } finally {
       setLoading(false);

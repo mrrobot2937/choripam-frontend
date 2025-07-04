@@ -101,7 +101,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-black text-white flex flex-col items-center py-10 px-4">
       <div className="w-full max-w-2xl bg-zinc-900 rounded-3xl shadow-2xl p-8">
         <div className="flex items-center gap-4 mb-8">
-          <Image src="/choripam-logo.svg" alt="Logo Choripam" width={60} height={30} />
+          <Image src="https://terrazaedenfiles.s3.us-east-2.amazonaws.com/WhatsApp+Image+2025-07-04+at+4.36.20+PM.jpeg" alt="Logo Choripam" width={60} height={30} />
           <h1 className="text-3xl font-extrabold">Finalizar pedido</h1>
         </div>
         {orderSent ? (

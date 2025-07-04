@@ -32,7 +32,7 @@ export default function RootLayout({
         <CartProvider>
           <header className="fixed top-0 left-0 w-full z-50 bg-black/95 border-b border-zinc-900 flex items-center justify-between px-6 py-2 shadow-xl">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/choripam-logo.svg" alt="Logo Choripam" width={120} height={60} className="drop-shadow-xl" />
+              <Image src="https://terrazaedenfiles.s3.us-east-2.amazonaws.com/WhatsApp+Image+2025-07-04+at+4.36.20+PM.jpeg" alt="Logo Choripam" width={120} height={60} className="drop-shadow-xl" />
             </Link>
             <CartButtonAndPanel />
           </header>

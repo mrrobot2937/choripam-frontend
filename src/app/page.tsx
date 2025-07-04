@@ -36,7 +36,7 @@ export default function Home() {
       {/* Logo fijo arriba a la izquierda */}
       <header className="fixed top-0 left-0 z-50 p-4">
         <Link href="/">
-          <Image src="/choripam-logo.svg" alt="Logo Choripam" width={120} height={60} className="drop-shadow-xl" />
+          <Image src="https://terrazaedenfiles.s3.us-east-2.amazonaws.com/WhatsApp+Image+2025-07-04+at+4.36.20+PM.jpeg" alt="Logo Choripam" width={120} height={60} className="drop-shadow-xl" />
         </Link>
       </header>
       {/* Banner/slider principal */}
