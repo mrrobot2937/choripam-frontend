@@ -63,7 +63,7 @@ export default function CheckoutPage() {
         metodo_pago: payment,
         modalidad_entrega: delivery
       };
-      const res = await fetch("http://localhost:8000/api/pedidos", {
+      const res = await fetch("https://ls01awdut1.execute-api.us-east-1.amazonaws.com/v1/api/pedidos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pedido)
