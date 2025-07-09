@@ -27,37 +27,37 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   }
 
   return (
-    <div className="bg-zinc-900 rounded-3xl p-6 shadow-2xl flex flex-col gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group">
-      {/* Imagen del producto */}
-      <div className="h-40 w-full bg-zinc-800 rounded-2xl flex items-center justify-center mb-2 overflow-hidden">
+    <div className="bg-zinc-900 rounded-3xl p-4 shadow-2xl flex flex-col gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group h-full">
+      {/* Imagen del producto - Mejorada para imágenes cuadradas */}
+      <div className="relative aspect-square w-full bg-zinc-800 rounded-2xl overflow-hidden mb-3">
         {product.image_url && !imageError ? (
           <Image 
             src={product.image_url} 
             alt={product.name} 
-            width={180} 
-            height={160} 
-            className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setImageError(true)}
             placeholder="blur"
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHB0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+Rg=" 
           />
         ) : (
-          <div className="text-zinc-500 text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500">
             <div className="text-4xl mb-2">🍽️</div>
-            <span className="text-sm">Sin imagen</span>
+            <span className="text-sm font-medium">Sin imagen</span>
           </div>
         )}
       </div>
 
       {/* Información del producto */}
       <div className="flex-1 flex flex-col">
-        <h3 className="text-2xl font-bold mb-1">{product.name}</h3>
-        <p className="text-gray-300 mb-3 text-base line-clamp-3">{product.description}</p>
+        <h3 className="text-xl font-bold mb-2 line-clamp-2 leading-tight">{product.name}</h3>
+        <p className="text-gray-300 mb-3 text-sm line-clamp-3 leading-relaxed">{product.description}</p>
         
         {/* Categoría */}
         {product.category && (
-          <div className="mb-2">
-            <span className="inline-block px-2 py-1 text-xs bg-yellow-400 text-black rounded-full font-bold">
+          <div className="mb-3">
+            <span className="inline-block px-3 py-1 text-xs bg-yellow-400 text-black rounded-full font-bold">
               {typeof product.category === 'string' ? product.category : product.category.name}
             </span>
           </div>
@@ -66,7 +66,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
         {/* Selector de variante (si las hay) */}
         {hasVariants && (
           <div className="mb-3">
-            <p className="text-sm text-gray-400 mb-2">Tamaño:</p>
+            <p className="text-sm text-gray-400 mb-2 font-medium">Tamaño:</p>
             <div className="flex gap-2 flex-wrap">
               {product.variants!.map((v, i) => (
                 <button
@@ -87,11 +87,11 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
         {/* Precio y tiempo de preparación */}
         <div className="flex items-center justify-between mb-3">
-          <span className="text-yellow-400 font-extrabold text-xl">
+          <span className="text-yellow-400 font-extrabold text-lg">
             ${displayPrice.toLocaleString()}
           </span>
           {product.preparation_time && (
-            <span className="text-gray-400 text-sm">
+            <span className="text-gray-400 text-xs font-medium">
               ⏱️ {product.preparation_time} min
             </span>
           )}
@@ -99,8 +99,8 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
         {/* Estado de disponibilidad */}
         {product.is_available === false && (
-          <div className="mb-2">
-            <span className="inline-block px-2 py-1 text-xs bg-red-500 text-white rounded-full font-bold">
+          <div className="mb-3">
+            <span className="inline-block px-3 py-1 text-xs bg-red-500 text-white rounded-full font-bold">
               No disponible
             </span>
           </div>
@@ -108,10 +108,10 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
         {/* Botón de agregar */}
         <button
-          className={`mt-auto px-4 py-2 rounded-full font-bold transition-colors text-lg shadow-lg ${
+          className={`mt-auto px-4 py-3 rounded-full font-bold transition-colors text-base shadow-lg ${
             product.is_available === false
               ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              : 'bg-yellow-400 text-black hover:bg-yellow-300'
+              : 'bg-yellow-400 text-black hover:bg-yellow-300 active:scale-95'
           }`}
           onClick={handleAdd}
           disabled={product.is_available === false}
