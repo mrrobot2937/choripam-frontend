@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useClientSide, useLocalStorage } from '../../hooks/useClientSide';
+import { AdminLoadingSpinner } from '../../components/LoadingSpinner';
 
 interface AdminUser {
   id: string;
@@ -18,25 +20,28 @@ export default function AdminLayout({
 }) {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const mounted = useClientSide();
   const router = useRouter();
   const pathname = usePathname();
 
   // Verificar autenticación al cargar (sin llamada a API)
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('admin_token');
-      const adminData = localStorage.getItem('admin_user');
-      
-      if (!token || !adminData) {
-        // No hay token o datos de usuario
-        if (pathname !== '/admin/login' && pathname !== '/admin/signup') {
-          router.push('/admin/login');
-        }
-        setLoading(false);
-        return;
-      }
+    if (!mounted) return;
 
+    const checkAuth = () => {
       try {
+        const token = localStorage.getItem('admin_token');
+        const adminData = localStorage.getItem('admin_user');
+        
+        if (!token || !adminData) {
+          // No hay token o datos de usuario
+          if (pathname !== '/admin/login' && pathname !== '/admin/signup') {
+            router.push('/admin/login');
+          }
+          setLoading(false);
+          return;
+        }
+
         // Usar datos almacenados localmente
         const userData = JSON.parse(adminData);
         setAdminUser(userData);
@@ -53,7 +58,7 @@ export default function AdminLayout({
     };
 
     checkAuth();
-  }, [pathname, router]);
+  }, [pathname, router, mounted]);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
@@ -62,13 +67,14 @@ export default function AdminLayout({
     router.push('/admin/login');
   };
 
+  // Evitar renderizado hasta que esté montado
+  if (!mounted) {
+    return <AdminLoadingSpinner />;
+  }
+
   // Mostrar spinner mientras carga
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-yellow-400"></div>
-      </div>
-    );
+    return <AdminLoadingSpinner />;
   }
 
   // Mostrar página de auth sin layout
