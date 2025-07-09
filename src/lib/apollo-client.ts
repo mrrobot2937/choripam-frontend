@@ -3,7 +3,7 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 
 // URL del backend GraphQL - ajusta según tu configuración
-const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8000/graphql';
+const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://choripam-backend-real.vercel.app/graphql';
 
 // Link HTTP para conectar con el servidor GraphQL
 const httpLink = createHttpLink({
