@@ -24,6 +24,7 @@ export const useOrderNotifications = (
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const isPlayingRef = useRef(false);
+    const checkOrdersRef = useRef<(() => Promise<void>) | null>(null);
 
     // Actualizar ref cuando cambie isPlaying
     useEffect(() => {
@@ -91,7 +92,7 @@ export const useOrderNotifications = (
         }
     }, []);
 
-    // Función de verificación de órdenes con useCallback
+    // Función de verificación de órdenes
     const checkOrders = useCallback(async () => {
         try {
             const timestamp = new Date().toISOString();
@@ -162,7 +163,12 @@ export const useOrderNotifications = (
             const timestamp = new Date().toISOString();
             console.error(`❌ [${timestamp}] Error verificando pedidos:`, error);
         }
-    }, [cleanRestaurantId, previousOrderIds, playAlarm]);
+    }, [cleanRestaurantId, playAlarm, previousOrderIds]); // Agregado previousOrderIds de vuelta
+
+    // Actualizar la ref cuando cambie la función
+    useEffect(() => {
+        checkOrdersRef.current = checkOrders;
+    }, [checkOrders]);
 
     // Configurar intervalo principal  
     useEffect(() => {
@@ -185,12 +191,12 @@ export const useOrderNotifications = (
             hasInitialized = true;
         });
 
-        // Configurar intervalo
+        // Configurar intervalo usando la ref para evitar recreaciones
         console.log(`⏰ Configurando intervalo cada ${intervalMs}ms`);
         intervalRef.current = setInterval(() => {
-            if (hasInitialized) {
+            if (hasInitialized && checkOrdersRef.current) {
                 console.log('⏰ Ejecutando verificación por intervalo...');
-                checkOrders();
+                checkOrdersRef.current();
             }
         }, intervalMs);
 
@@ -200,7 +206,7 @@ export const useOrderNotifications = (
                 clearInterval(intervalRef.current);
             }
         };
-    }, [enabled, intervalMs, checkOrders, cleanRestaurantId]);
+    }, [enabled, intervalMs, cleanRestaurantId]); // Removido checkOrders de las dependencias
 
     // Solicitar permisos de notificación
     useEffect(() => {
