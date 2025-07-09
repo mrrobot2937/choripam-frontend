@@ -24,7 +24,6 @@ export const useOrderNotifications = (
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const isPlayingRef = useRef(false);
-    const isFirstRun = useRef(true);
 
     // Actualizar ref cuando cambie isPlaying
     useEffect(() => {
@@ -107,6 +106,7 @@ export const useOrderNotifications = (
 
         let consecutiveErrors = 0;
         const maxErrors = 3;
+        let hasInitialized = false; // Flag para controlar la inicialización
 
         // Función de verificación interna
         const checkOrders = async () => {
@@ -140,10 +140,10 @@ export const useOrderNotifications = (
                 console.log(`🆔 [${timestamp}] IDs actuales:`, Array.from(currentOrderIds));
                 console.log(`🆔 [${timestamp}] IDs anteriores:`, Array.from(previousOrderIds));
 
-                // En el primer run, solo establecer el estado
-                if (isFirstRun.current) {
-                    console.log(`🎯 [${timestamp}] Primera ejecución - estableciendo estado base`);
-                    isFirstRun.current = false;
+                // En el primer run, solo establecer el estado base sin reproducir alarma
+                if (!hasInitialized) {
+                    console.log(`🎯 [${timestamp}] Primera ejecución - estableciendo estado base SIN ALARMA`);
+                    hasInitialized = true;
                     setPreviousOrderIds(currentOrderIds);
                     setLastCheckTime(new Date());
                     return;
@@ -163,8 +163,8 @@ export const useOrderNotifications = (
                         return newCount;
                     });
 
-                    // Reproducir alarma - SIEMPRE intentar sonar
-                    console.log(`🔊 [${timestamp}] FORZANDO REPRODUCCIÓN DE ALARMA...`);
+                    // Reproducir alarma SOLO si hay nuevas órdenes
+                    console.log(`🔊 [${timestamp}] REPRODUCIENDO ALARMA PARA NUEVAS ÓRDENES...`);
                     playAlarm();
 
                     // Notificación del navegador
@@ -178,6 +178,8 @@ export const useOrderNotifications = (
                     } else {
                         console.log(`🔕 [${timestamp}] Notificaciones del navegador no disponibles`);
                     }
+                } else {
+                    console.log(`✅ [${timestamp}] No hay nuevas órdenes - sin alarma`);
                 }
 
                 // Actualizar estado

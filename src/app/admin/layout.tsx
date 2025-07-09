@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useClientSide, useLocalStorage } from '../../hooks/useClientSide';
+import { useClientSide } from '../../hooks/useClientSide';
 import { AdminLoadingSpinner } from '../../components/LoadingSpinner';
 
 interface AdminUser {
