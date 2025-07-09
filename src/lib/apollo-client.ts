@@ -1,9 +1,10 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+import config from '../../env.config.js';
 
-// URL del backend GraphQL - ajusta según tu configuración
-const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://choripam-backend-real-d8c0ybnj5-david-leons-projects-e6b66126.vercel.app/graphql';
+// URL del backend GraphQL desde configuración
+const GRAPHQL_URL = config.GRAPHQL_URL;
 
 // Link HTTP para conectar con el servidor GraphQL
 const httpLink = createHttpLink({
