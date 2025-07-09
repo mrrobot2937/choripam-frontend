@@ -222,7 +222,7 @@ export const useOrderNotifications = (
                 clearInterval(intervalRef.current);
             }
         };
-    }, [enabled, intervalMs, cleanRestaurantId, playAlarm, previousOrderIds]);
+    }, [enabled, intervalMs, cleanRestaurantId, playAlarm]); // Remover previousOrderIds de las dependencias
 
     // Solicitar permisos de notificación
     useEffect(() => {

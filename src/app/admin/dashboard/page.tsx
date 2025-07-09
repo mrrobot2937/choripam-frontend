@@ -162,7 +162,7 @@ export default function AdminDashboard() {
     // Actualizar cada 30 segundos
     const interval = setInterval(loadDashboardData, 30000);
     return () => clearInterval(interval);
-  }, [loadDashboardData]);
+  }, []); // Remover loadDashboardData de las dependencias
 
   const handleNewOrdersAcknowledged = () => {
     resetNewOrdersCount();
