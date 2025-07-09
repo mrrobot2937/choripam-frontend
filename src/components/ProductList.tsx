@@ -39,7 +39,7 @@ export default function ProductList({ products }: { products: Product[] }) {
             <div className="flex items-center gap-3 mb-2">
               <button
                 className="w-8 h-8 rounded-full bg-zinc-800 text-yellow-400 border-2 border-yellow-400 font-bold text-xl flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-colors"
-                onClick={() => removeFromCart(product.id)}
+                onClick={() => removeFromCart(String(product.id))}
                 disabled={quantity === 0}
                 aria-label="Restar"
               >

@@ -5,8 +5,8 @@ import { useCart } from "../contexts/CartContext";
 
 export default function CartButtonAndPanel() {
   const [cartOpen, setCartOpen] = useState(false);
-  const { cart } = useCart();
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const { getTotalItems } = useCart();
+  const totalItems = getTotalItems();
 
   return (
     <>

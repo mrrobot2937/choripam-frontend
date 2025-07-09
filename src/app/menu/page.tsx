@@ -1,400 +1,162 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCart } from "../../contexts/CartContext";
+import { apiService, Product } from "../../services/api-service";
 import ProductVariantCard from "../../components/ProductVariantCard";
 
-const menuData = [
-  {
-    category: "Choripapas",
-    products: [
-      {
-        id: 1,
-        name: "Choripapa Clásica",
-        description: "Papa amarilla, chorizo, tocineta artesanal, queso mozzarella gratinado, salsa BBQ, salsa maíz dulce y salsa de la casa.",
-        imageUrl: "/choripapa-clasica.jpg",
-        variants: [
-          { label: "1P", price: 16000 },
-          { label: "2P", price: 30000 },
-          { label: "3P", price: 45000 },
-          { label: "4P", price: 58000 },
-        ],
-      },
-      {
-        id: 2,
-        name: "Choripapa Morronga",
-        description: "Papa amarilla, chorizo, tocineta artesanal, mechada, queso mozzarella gratinado, salsa BBQ, salsa maíz dulce y salsa de la casa. Guiso opcional.",
-        imageUrl: "/choripapa-morronga.jpg",
-        variants: [
-          { label: "1P", price: 19000 },
-          { label: "2P", price: 36000 },
-          { label: "3P", price: 53000 },
-          { label: "4P", price: 68000 },
-        ],
-      },
-      {
-        id: 3,
-        name: "Choripapa Garosa",
-        description: "Papa amarilla, chorizo, tocineta, carne mechada, queso mozzarella gratinado, salsa BBQ, salsa maíz dulce y salsa de la casa.",
-        imageUrl: "/choripapa-garosa.jpg",
-        variants: [
-          { label: "1P", price: 22000 },
-          { label: "2P", price: 40000 },
-          { label: "3P", price: 58000 },
-          { label: "4P", price: 72000 },
-        ],
-      },
-      {
-        id: 4,
-        name: "Choripapa Áspera",
-        description: "Papa amarilla, chorizo, tocineta artesanal, costilla, queso mozzarella gratinado, salsa BBQ, salsa maíz dulce y salsa de la casa.",
-        imageUrl: "/choripapa-aspera.jpg",
-        variants: [
-          { label: "1P", price: 24000 },
-          { label: "2P", price: 42000 },
-          { label: "3P", price: 60000 },
-          { label: "4P", price: 74000 },
-        ],
-      },
-      {
-        id: 5,
-        name: "Choripapa Golosa",
-        description: "Papa amarilla, chorizo, tocineta artesanal, pollo y carne mechada, queso mozzarella gratinado, salsa BBQ, salsa maíz dulce y salsa de la casa.",
-        imageUrl: "/choripapa-golosa.jpg",
-        variants: [
-          { label: "1P", price: 25000 },
-          { label: "2P", price: 44000 },
-          { label: "3P", price: 62000 },
-          { label: "4P", price: 76000 },
-        ],
-      },
-    ],
-  },
-  {
-    category: "Picadas",
-    products: [
-      {
-        id: 6,
-        name: "Picada",
-        description: "Papa amarilla, chorizo premium, costilla, trozos de lomo redondo, arepa, pico de gallo y salsas de la casa.",
-        imageUrl: "/picada.jpg",
-        variants: [
-          { label: "1P", price: 30000 },
-          { label: "2P", price: 55000 },
-          { label: "3P", price: 82000 },
-        ],
-      },
-    ],
-  },
-  {
-    category: "Bebidas",
-    products: [
-      {
-        id: 21,
-        name: "Gaseosa Coca-Cola",
-        description: "Gaseosa Coca-Cola 400ml.",
-        imageUrl: "/gaseosa-coca.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 22,
-        name: "Gaseosa Coca-Cola Zero",
-        description: "Gaseosa Coca-Cola Zero 400ml.",
-        imageUrl: "/gaseosa-coca-zero.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 23,
-        name: "Gaseosa Quatro",
-        description: "Gaseosa Quatro 400ml.",
-        imageUrl: "/gaseosa-quatro.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 24,
-        name: "Gaseosa Premio",
-        description: "Gaseosa Premio 400ml.",
-        imageUrl: "/gaseosa-premio.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 25,
-        name: "Gaseosa Manzana",
-        description: "Gaseosa Manzana 400ml.",
-        imageUrl: "/gaseosa-manzana.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 26,
-        name: "Gaseosa Colombiana",
-        description: "Gaseosa Colombiana 400ml.",
-        imageUrl: "/gaseosa-colombiana.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 27,
-        name: "Gaseosa Uva",
-        description: "Gaseosa Uva 400ml.",
-        imageUrl: "/gaseosa-uva.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 28,
-        name: "Gaseosa Naranja",
-        description: "Gaseosa Naranja 400ml.",
-        imageUrl: "/gaseosa-naranja.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 29,
-        name: "Gaseosa Soda",
-        description: "Gaseosa Soda 400ml.",
-        imageUrl: "/gaseosa-soda.jpg",
-        variants: [ { label: "400ml", price: 5000 } ]
-      },
-      {
-        id: 30,
-        name: "Jugo Uva",
-        description: "Jugo natural de uva.",
-        imageUrl: "/jugo-uva.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 31,
-        name: "Jugo Fresa",
-        description: "Jugo natural de fresa.",
-        imageUrl: "/jugo-fresa.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 32,
-        name: "Jugo Mora",
-        description: "Jugo natural de mora.",
-        imageUrl: "/jugo-mora.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 33,
-        name: "Jugo Maracuyá",
-        description: "Jugo natural de maracuyá.",
-        imageUrl: "/jugo-maracuya.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 34,
-        name: "Jugo Lulo",
-        description: "Jugo natural de lulo.",
-        imageUrl: "/jugo-lulo.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 35,
-        name: "Jugo Mango",
-        description: "Jugo natural de mango.",
-        imageUrl: "/jugo-mango.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 36,
-        name: "Jugo Frutos Rojos",
-        description: "Jugo natural de frutos rojos.",
-        imageUrl: "/jugo-frutos-rojos.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 37,
-        name: "Jugo Piña",
-        description: "Jugo natural de piña.",
-        imageUrl: "/jugo-pina.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 38,
-        name: "Jugo Guanábana",
-        description: "Jugo natural de guanábana.",
-        imageUrl: "/jugo-guanabana.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 39,
-        name: "Agua",
-        description: "Botella de agua.",
-        imageUrl: "/agua.jpg",
-        variants: [ { label: "500ml", price: 8000 } ]
-      },
-      {
-        id: 40,
-        name: "Leche",
-        description: "Vaso de leche.",
-        imageUrl: "/leche.jpg",
-        variants: [ { label: "250ml", price: 10000 } ]
-      },
-      {
-        id: 41,
-        name: "Limonada natural",
-        description: "Limonada natural.",
-        imageUrl: "/limonada.jpg",
-        variants: [ { label: "250ml", price: 7000 } ]
-      },
-      {
-        id: 42,
-        name: "Jarra de limonada",
-        description: "Jarra de limonada natural.",
-        imageUrl: "/jarra-limonada.jpg",
-        variants: [ { label: "250ml", price: 14000 } ]
-      },
-      {
-        id: 43,
-        name: "Agua con gas o sin gas",
-        description: "Agua con gas o sin gas.",
-        imageUrl: "/agua-gas.jpg",
-        variants: [ { label: "500ml", price: 4000 } ]
-      },
-    ],
-  },
-  {
-    category: "Choripam",
-    products: [
-      {
-        id: 44,
-        name: "Choripam de la Casa",
-        description: "Pan de orégano, chorizo premium, chimichurri, pico de gallo, queso crema, salsa verde.",
-        imageUrl: "/choripam-casa.jpg",
-        variants: [ { label: "Único", price: 16000 } ]
-      },
-      {
-        id: 45,
-        name: "Choripam Melo",
-        description: "Pan de orégano, chorizo premium, pollo mechado, pico de gallo, queso crema, salsa verde de la casa.",
-        imageUrl: "/choripam-melo.jpg",
-        variants: [ { label: "Único", price: 19000 } ]
-      },
-      {
-        id: 46,
-        name: "Choripam Calidoso",
-        description: "Pan de orégano, chorizo premium, pollo y carne mechada en guiso, salsa verde.",
-        imageUrl: "/choripam-calidoso.jpg",
-        variants: [ { label: "Único", price: 22000 } ]
-      },
-      {
-        id: 47,
-        name: "Choripam de Carnes",
-        description: "Pan de orégano, chorizo premium, trozos de lomo redondo, chimichurri, pico de gallo, queso crema, salsa verde.",
-        imageUrl: "/choripam-carnes.jpg",
-        variants: [ { label: "Único", price: 25000 } ]
-      },
-    ],
-  },
-  {
-    category: "Sándwich",
-    products: [
-      {
-        id: 48,
-        name: "Sándwich Potente",
-        description: "Pan de orégano, lechuga, tomate, queso, tocineta, salsa de maíz dulce y salsa verde de la casa.",
-        imageUrl: "/sandwich-potente.jpg",
-        variants: [ { label: "Único", price: 15000 } ]
-      },
-      {
-        id: 49,
-        name: "Sándwich de la Casa",
-        description: "Pan de orégano, pollo y carne mechada, pico de gallo, salsa verde de la casa.",
-        imageUrl: "/sandwich-casa.jpg",
-        variants: [ { label: "Único", price: 17000 } ]
-      },
-      {
-        id: 50,
-        name: "Sándwich Calidoso",
-        description: "Pan de orégano, pollo mechado, trozos de lomo redondo, pico de gallo y salsa verde.",
-        imageUrl: "/sandwich-calidoso.jpg",
-        variants: [ { label: "Único", price: 21000 } ]
-      },
-    ],
-  },
-  {
-    category: "Arepas",
-    products: [
-      {
-        id: 51,
-        name: "Arepa Quesuda",
-        description: "Arepa rellena de queso mozzarella.",
-        imageUrl: "/arepa-quesuda.jpg",
-        variants: [ { label: "Única", price: 7000 } ]
-      },
-      {
-        id: 52,
-        name: "Arepa Chorizo",
-        description: "Arepa rellena con chorizo premium de cerdo y queso crema.",
-        imageUrl: "/arepa-chorizo.jpg",
-        variants: [ { label: "Única", price: 8000 } ]
-      },
-      {
-        id: 53,
-        name: "Arepa Sencilla",
-        description: "Arepa rellena con pollo mechado o carne mechada en guiso y salsas de la casa.",
-        imageUrl: "/arepa-sencilla.jpg",
-        variants: [ { label: "Única", price: 9000 } ]
-      },
-      {
-        id: 54,
-        name: "Arepa Mixta",
-        description: "Arepa rellena con pollo mechado y carne mechada en guiso y salsas de la casa.",
-        imageUrl: "/arepa-mixta.jpg",
-        variants: [ { label: "Única", price: 10000 } ]
-      },
-      {
-        id: 55,
-        name: "Arepa con Todo",
-        description: "Arepa rellena con pollo mechado, carne mechada en guiso, chorizo de cerdo premium y salsas de la casa.",
-        imageUrl: "/arepa-todo.jpg",
-        variants: [ { label: "Única", price: 12000 } ]
-      },
-    ],
-  },
-];
-
 export default function MenuPage() {
-  const [selected, setSelected] = useState<string | null>(null);
-  const categories = menuData.map((s) => s.category);
-  const filtered = selected ? menuData.filter((s) => s.category === selected) : menuData;
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { restaurantId } = useCart();
+
+  // Función helper para obtener el nombre de la categoría de manera segura
+  const getCategoryName = (category: string | { id: string; name: string } | undefined | null): string => {
+    if (!category) return 'Sin categoría';
+    if (typeof category === 'string') return category;
+    if (typeof category === 'object' && category.name) return category.name;
+    return 'Sin categoría';
+  };
+
+  // Obtener categorías únicas de los productos
+  const categories = Array.from(new Set(products.map(p => getCategoryName(p.category)).filter(Boolean)));
+
+  // Filtrar productos por categoría seleccionada
+  const filteredProducts = selectedCategory 
+    ? products.filter(p => getCategoryName(p.category) === selectedCategory)
+    : products;
+
+  // Agrupar productos por categoría
+  const productsByCategory = filteredProducts.reduce((acc, product) => {
+    const categoryName = getCategoryName(product.category);
+    if (!acc[categoryName]) {
+      acc[categoryName] = [];
+    }
+    acc[categoryName].push(product);
+    return acc;
+  }, {} as Record<string, Product[]>);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await apiService.getProducts(restaurantId);
+        setProducts(response.products);
+      } catch (err) {
+        console.error('Error cargando productos:', err);
+        setError('Error cargando el menú. Por favor, intenta nuevamente.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [restaurantId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+          <p className="text-lg">Cargando menú...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-2">Error</h2>
+          <p className="text-gray-300 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Barra de filtros fija */}
       <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 py-4 px-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-extrabold text-center mb-6">Menú</h1>
+          <h1 className="text-4xl font-extrabold text-center mb-2">Menú</h1>
+          <p className="text-center text-gray-400 mb-6 capitalize">
+            {restaurantId} • {products.length} productos disponibles
+          </p>
+          
           {/* Contenedor con scroll horizontal */}
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
             <button
-              className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${selected === null ? 'bg-yellow-400 text-black border-yellow-400 shadow' : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'}`}
-              onClick={() => setSelected(null)}
+              className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${
+                selectedCategory === null 
+                  ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
+                  : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
+              }`}
+              onClick={() => setSelectedCategory(null)}
             >
-              Todos
+              Todos ({products.length})
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${selected === cat ? 'bg-yellow-400 text-black border-yellow-400 shadow' : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'}`}
-                onClick={() => setSelected(cat)}
-              >
-                {cat}
-              </button>
-            ))}
+            {categories.map((category) => {
+              const count = products.filter(p => getCategoryName(p.category) === category).length;
+              return (
+                <button
+                  key={category}
+                  className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${
+                    selectedCategory === category 
+                      ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
+                      : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
+                  }`}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category} ({count})
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
       
       {/* Contenido del menú */}
       <div className="px-4 py-8">
-      {filtered.map((section) => (
-        <section key={section.category} className="mb-12">
-          <h2 className="text-2xl font-bold mb-4 border-b border-yellow-400 pb-2">{section.category}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {section.products.map((product) => (
-              <ProductVariantCard key={product.id} product={product} />
-            ))}
+        {Object.entries(productsByCategory).map(([categoryName, categoryProducts]) => (
+          <section key={categoryName} className="mb-12">
+            <h2 className="text-2xl font-bold mb-4 border-b border-yellow-400 pb-2 flex items-center justify-between">
+              <span>{categoryName}</span>
+              <span className="text-sm text-gray-400 font-normal">
+                {categoryProducts.length} producto{categoryProducts.length !== 1 ? 's' : ''}
+              </span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {categoryProducts.map((product) => (
+                <ProductVariantCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        ))}
+        
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🍽️</div>
+            <h3 className="text-2xl font-bold mb-2">No hay productos disponibles</h3>
+            <p className="text-gray-400">
+              {selectedCategory 
+                ? `No se encontraron productos en la categoría "${selectedCategory}"`
+                : 'No hay productos disponibles en este momento'
+              }
+            </p>
           </div>
-        </section>
-      ))}
+        )}
       </div>
     </div>
   );
