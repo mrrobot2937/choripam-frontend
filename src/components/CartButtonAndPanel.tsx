@@ -1,12 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CartPanel from "./CartPanel";
 import { useCart } from "../contexts/CartContext";
 
 export default function CartButtonAndPanel() {
   const [cartOpen, setCartOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { getTotalItems } = useCart();
-  const totalItems = getTotalItems();
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const totalItems = mounted ? getTotalItems() : 0;
 
   return (
     <>
@@ -23,7 +29,7 @@ export default function CartButtonAndPanel() {
           <circle cx="25.5" cy="29" r="1.5" fill="#FFD600"/>
         </svg>
         {/* Contador de productos */}
-        {totalItems > 0 && (
+        {mounted && totalItems > 0 && (
           <span className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-bold rounded-full px-2 py-0.5 border-2 border-black shadow-lg animate-bounce">
             {totalItems}
           </span>

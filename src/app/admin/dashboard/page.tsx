@@ -159,7 +159,7 @@ export default function AdminDashboard() {
   // Cargar datos del dashboard
   useEffect(() => {
     loadDashboardData();
-  }, [loadDashboardData]);
+  }, [restaurantId]);
 
   const handleNewOrdersAcknowledged = () => {
     resetNewOrdersCount();

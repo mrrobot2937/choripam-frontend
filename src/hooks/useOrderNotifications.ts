@@ -163,7 +163,7 @@ export const useOrderNotifications = (
             const timestamp = new Date().toISOString();
             console.error(`❌ [${timestamp}] Error verificando pedidos:`, error);
         }
-    }, [cleanRestaurantId, playAlarm, previousOrderIds]); // Agregado previousOrderIds de vuelta
+    }, [cleanRestaurantId, playAlarm]);
 
     // Actualizar la ref cuando cambie la función
     useEffect(() => {

@@ -57,7 +57,7 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, [restaurantId, showInfo, showSuccess, showError]);
+  }, [restaurantId]);
 
   const applyFilters = useCallback(() => {
     let filtered = [...products];
@@ -106,8 +106,10 @@ export default function ProductsPage() {
   }, [loadProducts]);
 
   useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
+    if (products.length > 0) {
+      applyFilters();
+    }
+  }, [products, filters, sortBy]);
 
   const loadCategories = async () => {
     try {
