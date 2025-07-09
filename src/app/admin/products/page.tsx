@@ -57,7 +57,7 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, [restaurantId]);
+  }, [restaurantId, showInfo, showSuccess, showError]);
 
   const applyFilters = useCallback(() => {
     let filtered = [...products];
@@ -109,7 +109,7 @@ export default function ProductsPage() {
     if (products.length > 0) {
       applyFilters();
     }
-  }, [products, filters, sortBy]);
+  }, [products, filters, sortBy, applyFilters]);
 
   const loadCategories = async () => {
     try {

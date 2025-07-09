@@ -150,6 +150,7 @@ export interface LegacyOrder {
     products: Array<{
         id: number;
         name: string;
+        nombre?: string; // Campo adicional para compatibilidad
         cantidad: number;
         precio: number;
     }>;

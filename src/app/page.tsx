@@ -1,106 +1,163 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect } from "react";
-
-const banners = [
-  { src: "/banner1.jpg", alt: "Choripán especial" },
-  { src: "/banner2.jpg", alt: "Promoción del día" },
-  { src: "/banner3.jpg", alt: "Bebidas y combos" },
-];
-
-const cupones = [
-  { code: "PRIMERA10", desc: "10% de descuento en tu primera compra" },
-  { code: "FAMILIA", desc: "15% en pedidos familiares" },
-];
-
-const promos = [
-  { title: "Combo Choripapa + Gaseosa", desc: "Aprovecha el combo del día", img: "/promo1.jpg" },
-  { title: "2x1 en Arepas", desc: "Solo hoy, arepas rellenas 2x1", img: "/promo2.jpg" },
-];
+import { useCart } from "../contexts/CartContext";
+import { apiService, Product } from "../services/api-service";
+import ProductVariantCard from "../components/ProductVariantCard";
 
 export default function Home() {
-  const [showModal, setShowModal] = useState(true);
-  const [bannerIdx, setBannerIdx] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { restaurantId } = useCart();
 
-  // Slider automático
+  // Función helper para obtener el nombre de la categoría de manera segura
+  const getCategoryName = (category: string | { id: string; name: string } | undefined | null): string => {
+    if (!category) return 'Sin categoría';
+    if (typeof category === 'string') return category;
+    if (typeof category === 'object' && category.name) return category.name;
+    return 'Sin categoría';
+  };
+
+  // Obtener categorías únicas de los productos
+  const categories = Array.from(new Set(products.map(p => getCategoryName(p.category)).filter(Boolean)));
+
+  // Filtrar productos por categoría seleccionada
+  const filteredProducts = selectedCategory 
+    ? products.filter(p => getCategoryName(p.category) === selectedCategory)
+    : products;
+
+  // Agrupar productos por categoría
+  const productsByCategory = filteredProducts.reduce((acc, product) => {
+    const categoryName = getCategoryName(product.category);
+    if (!acc[categoryName]) {
+      acc[categoryName] = [];
+    }
+    acc[categoryName].push(product);
+    return acc;
+  }, {} as Record<string, Product[]>);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBannerIdx((idx) => (idx + 1) % banners.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await apiService.getProducts(restaurantId);
+        setProducts(response.products);
+      } catch (err) {
+        console.error('Error cargando productos:', err);
+        setError('Error cargando el menú. Por favor, intenta nuevamente.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [restaurantId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+          <p className="text-lg">Cargando menú...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-2">Error</h2>
+          <p className="text-gray-300 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Logo fijo arriba a la izquierda */}
-      <header className="fixed top-0 left-0 z-50 p-4">
-        <Link href="/">
-          <Image src="https://terrazaedenfiles.s3.us-east-2.amazonaws.com/WhatsApp+Image+2025-07-04+at+4.36.20+PM.jpeg" alt="Logo Choripam" width={120} height={60} className="drop-shadow-xl" />
-        </Link>
-      </header>
-      {/* Banner/slider principal */}
-      <section className="w-full flex flex-col items-center justify-center pt-24 pb-8 px-2 bg-gradient-to-br from-black via-zinc-900 to-yellow-400/10">
-        <div className="w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl mb-6 relative">
-          <Image
-            src={banners[bannerIdx].src}
-            alt={banners[bannerIdx].alt}
-            width={900}
-            height={350}
-            className="w-full h-[220px] md:h-[350px] object-cover transition-all duration-700"
-            priority
-          />
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {banners.map((_, i) => (
-              <span key={i} className={`w-3 h-3 rounded-full ${i === bannerIdx ? "bg-yellow-400" : "bg-white/30"} border border-white/40`}></span>
-            ))}
+    <div className="min-h-screen bg-black text-white">
+      {/* Barra de filtros fija */}
+      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 py-4 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-extrabold text-center mb-2">Menú</h1>
+          <p className="text-center text-gray-400 mb-6 capitalize">
+            {restaurantId} • {products.length} productos disponibles
+          </p>
+          
+          {/* Contenedor con scroll horizontal */}
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+            <button
+              className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${
+                selectedCategory === null 
+                  ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
+                  : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
+              }`}
+              onClick={() => setSelectedCategory(null)}
+            >
+              Todos ({products.length})
+            </button>
+            {categories.map((category) => {
+              const count = products.filter(p => getCategoryName(p.category) === category).length;
+              return (
+                <button
+                  key={category}
+                  className={`px-5 py-2 rounded-full font-bold border-2 transition-colors whitespace-nowrap flex-shrink-0 ${
+                    selectedCategory === category 
+                      ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
+                      : 'bg-zinc-900 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
+                  }`}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category} ({count})
+                </button>
+              );
+            })}
           </div>
         </div>
-        <h1 className="text-5xl md:text-6xl font-extrabold text-center mb-2 tracking-tight drop-shadow-lg animate-fade-in">¡El mejor choripán, promos y combos!</h1>
-        <p className="text-xl md:text-2xl text-center text-gray-300 mb-4 animate-fade-in">Disfruta cupones, promociones y el sabor más auténtico.</p>
-        <Link href="/menu">
-          <button className="px-10 py-4 rounded-full bg-yellow-400 text-black text-2xl font-bold shadow-lg hover:bg-yellow-300 transition-colors animate-bounce">
-            Ver Menú
-          </button>
-        </Link>
-      </section>
-      {/* Cupones del día */}
-      <section className="w-full max-w-4xl mx-auto mt-8 mb-4 px-2">
-        <h2 className="text-2xl font-bold mb-3 text-yellow-400">Cupones del día</h2>
-        <div className="flex gap-4 flex-wrap">
-          {cupones.map((c) => (
-            <div key={c.code} className="bg-zinc-800 rounded-xl px-6 py-4 flex flex-col items-center shadow border border-yellow-400/40">
-              <span className="font-mono text-lg text-yellow-400 bg-yellow-200/20 px-3 py-1 rounded mb-2">{c.code}</span>
-              <span className="text-white text-base text-center">{c.desc}</span>
+      </div>
+      
+      {/* Contenido del menú */}
+      <div className="px-4 py-8">
+        {Object.entries(productsByCategory).map(([categoryName, categoryProducts]) => (
+          <section key={categoryName} className="mb-12">
+            <h2 className="text-2xl font-bold mb-4 border-b border-yellow-400 pb-2 flex items-center justify-between">
+              <span>{categoryName}</span>
+              <span className="text-sm text-gray-400 font-normal">
+                {categoryProducts.length} producto{categoryProducts.length !== 1 ? 's' : ''}
+              </span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {categoryProducts.map((product) => (
+                <ProductVariantCard key={product.id} product={product} />
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
-      {/* Promociones del día */}
-      <section className="w-full max-w-4xl mx-auto mt-4 mb-8 px-2">
-        <h2 className="text-2xl font-bold mb-3 text-yellow-400">Promociones del día</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {promos.map((promo) => (
-            <div key={promo.title} className="bg-zinc-900 rounded-2xl flex flex-col md:flex-row items-center gap-4 p-4 shadow-xl border border-yellow-400/20">
-              <Image src={promo.img} alt={promo.title} width={120} height={120} className="rounded-xl object-cover w-[120px] h-[120px]" />
-              <div>
-                <h3 className="text-xl font-bold text-yellow-400 mb-1">{promo.title}</h3>
-                <p className="text-white text-base">{promo.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      {/* Modal de descuento */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-white text-black rounded-2xl p-8 shadow-2xl flex flex-col items-center max-w-xs animate-fade-in">
-            <h2 className="text-3xl font-extrabold mb-2 text-yellow-500">¡Bienvenido!</h2>
-            <p className="text-lg mb-4 text-center">Obtén <span className="font-bold text-2xl text-yellow-500">10% de descuento</span> en tu primera compra usando el cupón <span className="font-mono bg-yellow-200 px-2 py-1 rounded">PRIMERA10</span></p>
-            <button onClick={() => setShowModal(false)} className="mt-2 px-6 py-2 rounded-full bg-yellow-400 text-black font-bold hover:bg-yellow-300 transition-colors">¡Quiero mi descuento!</button>
+          </section>
+        ))}
+        
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🍽️</div>
+            <h3 className="text-2xl font-bold mb-2">No hay productos disponibles</h3>
+            <p className="text-gray-400">
+              {selectedCategory 
+                ? `No se encontraron productos en la categoría "${selectedCategory}"`
+                : 'No hay productos disponibles en este momento'
+              }
+            </p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -163,7 +163,7 @@ export const useOrderNotifications = (
             const timestamp = new Date().toISOString();
             console.error(`❌ [${timestamp}] Error verificando pedidos:`, error);
         }
-    }, [cleanRestaurantId, playAlarm]);
+    }, [cleanRestaurantId, playAlarm, previousOrderIds]);
 
     // Actualizar la ref cuando cambie la función
     useEffect(() => {
@@ -206,7 +206,7 @@ export const useOrderNotifications = (
                 clearInterval(intervalRef.current);
             }
         };
-    }, [enabled, intervalMs, cleanRestaurantId]); // Removido checkOrders de las dependencias
+    }, [enabled, intervalMs, cleanRestaurantId, checkOrders]);
 
     // Solicitar permisos de notificación
     useEffect(() => {

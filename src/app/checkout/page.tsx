@@ -66,6 +66,7 @@ export default function CheckoutPage() {
       // Convertir productos del carrito al formato requerido por la API
       const productos = cart.map((item, index) => ({
         id: index + 1, // Usar índice como ID temporal
+        nombre: getProductDisplayName(item), // Agregar el nombre del producto
         cantidad: item.quantity,
         precio: item.price
       }));

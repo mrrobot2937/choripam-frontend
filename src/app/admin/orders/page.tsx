@@ -258,7 +258,7 @@ export default function AdminOrders() {
                       {order.products.map((product, index) => (
                         <div key={index} className="flex justify-between items-center text-sm">
                           <span className="text-gray-300">
-                            {product.name} x{product.cantidad}
+                            {product.nombre || product.name || `Producto ${product.id}`} x{product.cantidad}
                           </span>
                           <span className="text-yellow-400 font-semibold">
                             {formatCurrency(product.precio * product.cantidad)}
