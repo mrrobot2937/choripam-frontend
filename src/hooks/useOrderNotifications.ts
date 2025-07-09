@@ -91,6 +91,79 @@ export const useOrderNotifications = (
         }
     }, []);
 
+    // Función de verificación de órdenes con useCallback
+    const checkOrders = useCallback(async () => {
+        try {
+            const timestamp = new Date().toISOString();
+            console.log(`🔍 [${timestamp}] Verificando nuevos pedidos...`);
+
+            // SIEMPRE forzar actualización para datos frescos
+            const response = await apiService.getOrders(cleanRestaurantId, undefined, undefined, true);
+            console.log(`📝 [${timestamp}] Respuesta API:`, response);
+
+            if (!response.orders || !Array.isArray(response.orders)) {
+                throw new Error('Respuesta inválida de API');
+            }
+
+            // Filtrar órdenes relevantes para notificaciones 
+            const relevantOrders = response.orders.filter(order =>
+                order.status === 'pending' || order.status === 'confirmed'
+            );
+            console.log(`⏳ [${timestamp}] Órdenes relevantes:`, relevantOrders.length, relevantOrders.map(o => ({
+                id: o.order_id,
+                status: o.status,
+                method: o.delivery_method,
+                customer: o.customer_name
+            })));
+
+            const currentOrderIds = new Set(relevantOrders.map(order => order.order_id));
+            console.log(`🆔 [${timestamp}] IDs actuales:`, Array.from(currentOrderIds));
+            console.log(`🆔 [${timestamp}] IDs anteriores:`, Array.from(previousOrderIds));
+
+            // Detectar nuevas órdenes
+            const newOrders = [...currentOrderIds].filter(id => !previousOrderIds.has(id));
+            console.log(`🆕 [${timestamp}] Nuevos pedidos detectados:`, newOrders);
+
+            if (newOrders.length > 0) {
+                console.log(`🚨 [${timestamp}] ¡ALARMA! Nuevos pedidos:`, newOrders.length);
+
+                // Incrementar contador
+                setNewOrdersCount(prev => {
+                    const newCount = prev + newOrders.length;
+                    console.log(`📊 [${timestamp}] Contador actualizado: ${prev} → ${newCount}`);
+                    return newCount;
+                });
+
+                // Reproducir alarma SOLO si hay nuevas órdenes
+                console.log(`🔊 [${timestamp}] REPRODUCIENDO ALARMA PARA NUEVAS ÓRDENES...`);
+                playAlarm();
+
+                // Notificación del navegador
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    console.log(`📢 [${timestamp}] Enviando notificación del navegador...`);
+                    new Notification('¡Nuevo Pedido!', {
+                        body: `${newOrders.length} nuevo(s) pedido(s) pendiente(s)`,
+                        icon: '/favicon.ico',
+                        tag: 'new-order'
+                    });
+                } else {
+                    console.log(`🔕 [${timestamp}] Notificaciones del navegador no disponibles`);
+                }
+            } else {
+                console.log(`✅ [${timestamp}] No hay nuevas órdenes - sin alarma`);
+            }
+
+            // Actualizar estado
+            setPreviousOrderIds(currentOrderIds);
+            setLastCheckTime(new Date());
+            console.log(`✅ [${timestamp}] Verificación completada`);
+
+        } catch (error) {
+            const timestamp = new Date().toISOString();
+            console.error(`❌ [${timestamp}] Error verificando pedidos:`, error);
+        }
+    }, [cleanRestaurantId, previousOrderIds, playAlarm]);
+
     // Configurar intervalo principal  
     useEffect(() => {
         console.log('🔔 Configurando notificaciones:', { enabled, intervalMs, restaurantId: cleanRestaurantId });
@@ -104,117 +177,20 @@ export const useOrderNotifications = (
             return;
         }
 
-        let consecutiveErrors = 0;
-        const maxErrors = 3;
         let hasInitialized = false; // Flag para controlar la inicialización
-
-        // Función de verificación interna
-        const checkOrders = async () => {
-            try {
-                const timestamp = new Date().toISOString();
-                console.log(`🔍 [${timestamp}] Verificando nuevos pedidos...`);
-
-                // SIEMPRE forzar actualización para datos frescos
-                const response = await apiService.getOrders(cleanRestaurantId, undefined, undefined, true);
-                console.log(`📝 [${timestamp}] Respuesta API:`, response);
-
-                if (!response.orders || !Array.isArray(response.orders)) {
-                    throw new Error('Respuesta inválida de API');
-                }
-
-                // Resetear contador de errores en caso de éxito
-                consecutiveErrors = 0;
-
-                // Filtrar órdenes relevantes para notificaciones 
-                const relevantOrders = response.orders.filter(order =>
-                    order.status === 'pending' || order.status === 'confirmed'
-                );
-                console.log(`⏳ [${timestamp}] Órdenes relevantes:`, relevantOrders.length, relevantOrders.map(o => ({
-                    id: o.order_id,
-                    status: o.status,
-                    method: o.delivery_method,
-                    customer: o.customer_name
-                })));
-
-                const currentOrderIds = new Set(relevantOrders.map(order => order.order_id));
-                console.log(`🆔 [${timestamp}] IDs actuales:`, Array.from(currentOrderIds));
-                console.log(`🆔 [${timestamp}] IDs anteriores:`, Array.from(previousOrderIds));
-
-                // En el primer run, solo establecer el estado base sin reproducir alarma
-                if (!hasInitialized) {
-                    console.log(`🎯 [${timestamp}] Primera ejecución - estableciendo estado base SIN ALARMA`);
-                    hasInitialized = true;
-                    setPreviousOrderIds(currentOrderIds);
-                    setLastCheckTime(new Date());
-                    return;
-                }
-
-                // Detectar nuevas órdenes
-                const newOrders = [...currentOrderIds].filter(id => !previousOrderIds.has(id));
-                console.log(`🆕 [${timestamp}] Nuevos pedidos detectados:`, newOrders);
-
-                if (newOrders.length > 0) {
-                    console.log(`🚨 [${timestamp}] ¡ALARMA! Nuevos pedidos:`, newOrders.length);
-
-                    // Incrementar contador
-                    setNewOrdersCount(prev => {
-                        const newCount = prev + newOrders.length;
-                        console.log(`📊 [${timestamp}] Contador actualizado: ${prev} → ${newCount}`);
-                        return newCount;
-                    });
-
-                    // Reproducir alarma SOLO si hay nuevas órdenes
-                    console.log(`🔊 [${timestamp}] REPRODUCIENDO ALARMA PARA NUEVAS ÓRDENES...`);
-                    playAlarm();
-
-                    // Notificación del navegador
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        console.log(`📢 [${timestamp}] Enviando notificación del navegador...`);
-                        new Notification('¡Nuevo Pedido!', {
-                            body: `${newOrders.length} nuevo(s) pedido(s) pendiente(s)`,
-                            icon: '/favicon.ico',
-                            tag: 'new-order'
-                        });
-                    } else {
-                        console.log(`🔕 [${timestamp}] Notificaciones del navegador no disponibles`);
-                    }
-                } else {
-                    console.log(`✅ [${timestamp}] No hay nuevas órdenes - sin alarma`);
-                }
-
-                // Actualizar estado
-                setPreviousOrderIds(currentOrderIds);
-                setLastCheckTime(new Date());
-                console.log(`✅ [${timestamp}] Verificación completada`);
-
-            } catch (error) {
-                consecutiveErrors++;
-                const timestamp = new Date().toISOString();
-                console.error(`❌ [${timestamp}] Error verificando pedidos (${consecutiveErrors}/${maxErrors}):`, error);
-
-                // Si hay muchos errores consecutivos, detener las notificaciones temporalmente
-                if (consecutiveErrors >= maxErrors) {
-                    console.warn(`⚠️ [${timestamp}] Demasiados errores consecutivos, pausando notificaciones por 1 minuto...`);
-                    setTimeout(() => {
-                        consecutiveErrors = 0;
-                        console.log(`🔄 [${timestamp}] Reiniciando notificaciones después de pausa...`);
-                    }, 60000); // 1 minuto
-                }
-            }
-        };
 
         // Primera verificación inmediata
         console.log('🚀 Iniciando primera verificación...');
-        checkOrders();
+        checkOrders().then(() => {
+            hasInitialized = true;
+        });
 
         // Configurar intervalo
         console.log(`⏰ Configurando intervalo cada ${intervalMs}ms`);
         intervalRef.current = setInterval(() => {
-            if (consecutiveErrors < maxErrors) {
+            if (hasInitialized) {
                 console.log('⏰ Ejecutando verificación por intervalo...');
                 checkOrders();
-            } else {
-                console.log('⏸️ Saltando verificación por errores consecutivos...');
             }
         }, intervalMs);
 
@@ -224,7 +200,7 @@ export const useOrderNotifications = (
                 clearInterval(intervalRef.current);
             }
         };
-    }, [enabled, intervalMs, cleanRestaurantId, playAlarm]); // Remover previousOrderIds de las dependencias
+    }, [enabled, intervalMs, checkOrders, cleanRestaurantId]);
 
     // Solicitar permisos de notificación
     useEffect(() => {

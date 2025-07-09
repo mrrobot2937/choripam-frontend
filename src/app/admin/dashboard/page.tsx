@@ -159,10 +159,7 @@ export default function AdminDashboard() {
   // Cargar datos del dashboard
   useEffect(() => {
     loadDashboardData();
-    // Actualizar cada 30 segundos
-    const interval = setInterval(loadDashboardData, 30000);
-    return () => clearInterval(interval);
-  }, []); // Remover loadDashboardData de las dependencias
+  }, [loadDashboardData]);
 
   const handleNewOrdersAcknowledged = () => {
     resetNewOrdersCount();

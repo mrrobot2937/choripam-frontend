@@ -103,11 +103,11 @@ export default function ProductsPage() {
 
   useEffect(() => {
     loadProducts();
-  }, []); // Remover loadProducts de las dependencias
+  }, [loadProducts]);
 
   useEffect(() => {
     applyFilters();
-  }, [products, filters, sortBy]); // Solo incluir las dependencias reales, no la función
+  }, [applyFilters]);
 
   const loadCategories = async () => {
     try {
