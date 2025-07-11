@@ -213,7 +213,7 @@ export default function ProductsPage() {
         image_url: product.image_url || '',
         available: product.available,
         variants: Array.isArray(product.variants)
-          ? product.variants.map((v: any) => ({
+          ? product.variants.map((v: { size: string; price: number; image_url?: string }) => ({
               size: v.size,
               price: v.price.toString(),
               image_url: v.image_url || ''
@@ -289,7 +289,20 @@ export default function ProductsPage() {
     }
 
     try {
-      const productData: any = {
+      const productData: {
+        name: string;
+        description: string;
+        price: number;
+        category: string;
+        image_url?: string;
+        available: boolean;
+        restaurant_id: string;
+        variants?: Array<{
+          size: string;
+          price: number;
+          imageUrl?: string;
+        }>;
+      } = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
@@ -342,13 +355,14 @@ export default function ProductsPage() {
       }
 
       // Incluir las variantes existentes para que no se pierdan
-      const updateData: any = { available: !currentAvailability };
-      // Siempre incluir variantes, incluso si es un array vacío
-      updateData.variants = (product.variants || []).map((v: any) => ({
-        size: v.size,
-        price: v.price,
-        imageUrl: v.image_url || v.imageUrl || undefined
-      }));
+      const updateData = { 
+        available: !currentAvailability,
+        variants: (product.variants || []).map((v: { size: string; price: number; image_url?: string; imageUrl?: string }) => ({
+          size: v.size,
+          price: v.price,
+          imageUrl: v.image_url || v.imageUrl || undefined
+        }))
+      };
 
       await apiService.updateProduct(productId, updateData, restaurantId, product.originalId);
       const newStatus = !currentAvailability ? 'disponible' : 'no disponible';

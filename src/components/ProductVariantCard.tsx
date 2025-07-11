@@ -13,8 +13,8 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   const variant = hasVariants && product.variants ? product.variants[selected] : null;
 
   // Imagen principal: la de la variante si existe, si no la del producto
-  const mainImageUrl = hasVariants && product.variants && (product.variants[selected] as any)?.image_url
-    ? (product.variants[selected] as any).image_url
+  const mainImageUrl = hasVariants && product.variants && (product.variants[selected] as { image_url?: string })?.image_url
+    ? (product.variants[selected] as { image_url?: string }).image_url
     : product.image_url;
 
   // Si no hay variantes, usar el precio base del producto
@@ -66,9 +66,9 @@ export default function ProductVariantCard({ product }: { product: Product }) {
               type="button"
             >
               <div className="w-10 h-10 bg-zinc-800 rounded-md overflow-hidden flex items-center justify-center">
-                {(v as any)?.image_url ? (
+                {(v as { image_url?: string })?.image_url ? (
                   <Image
-                    src={(v as any).image_url}
+                    src={(v as { image_url?: string }).image_url!}
                     alt={v.size}
                     width={40}
                     height={40}
