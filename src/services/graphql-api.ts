@@ -33,6 +33,11 @@ interface CreateProductData {
     available: boolean;
     category: string;
     restaurant_id: string;
+    variants?: Array<{
+        size: string;
+        price: number;
+        image_url?: string;
+    }>;
 }
 
 /**
@@ -144,7 +149,8 @@ class GraphQLApiService {
                 imageUrl: productData.image_url,
                 available: productData.available,
                 categoryId: productData.category,
-                restaurantId
+                restaurantId,
+                variants: productData.variants
             };
 
             const { data } = await apolloClient.mutate({
@@ -242,6 +248,7 @@ class GraphQLApiService {
             if (productData.image_url !== undefined) input.imageUrl = productData.image_url;
             if (productData.available !== undefined) input.available = productData.available;
             if (productData.category !== undefined) input.categoryId = productData.category;
+            if (productData.variants !== undefined) input.variants = productData.variants;
 
             const { data } = await apolloClient.mutate({
                 mutation: UPDATE_PRODUCT,

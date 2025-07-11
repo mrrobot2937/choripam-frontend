@@ -33,7 +33,8 @@ export default function ProductsPage() {
     price: '',
     category: '',
     image_url: '',
-    available: true
+    available: true,
+    variants: [] as Array<{ size: string; price: string; image_url?: string }>
   });
 
   const loadProducts = useCallback(async () => {
@@ -210,7 +211,14 @@ export default function ProductsPage() {
         price: product.price.toString(),
         category: getCategoryName(product.category),
         image_url: product.image_url || '',
-        available: product.available
+        available: product.available,
+        variants: Array.isArray(product.variants)
+          ? product.variants.map((v: any) => ({
+              size: v.size,
+              price: v.price.toString(),
+              image_url: v.image_url || ''
+            }))
+          : []
       });
     } else {
       setEditingProduct(null);
@@ -220,7 +228,8 @@ export default function ProductsPage() {
         price: '',
         category: '',
         image_url: '',
-        available: true
+        available: true,
+        variants: []
       });
     }
     setShowModal(true);
@@ -237,7 +246,29 @@ export default function ProductsPage() {
       price: '',
       category: '',
       image_url: '',
-      available: true
+      available: true,
+      variants: []
+    });
+  };
+
+  const handleVariantChange = (index: number, key: string, value: string) => {
+    setFormData((prev) => {
+      const newVariants = [...prev.variants];
+      newVariants[index] = { ...newVariants[index], [key]: value };
+      return { ...prev, variants: newVariants };
+    });
+  };
+  const addVariant = () => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: [...prev.variants, { size: '', price: '', image_url: '' }]
+    }));
+  };
+  const removeVariant = (index: number) => {
+    setFormData((prev) => {
+      const newVariants = [...prev.variants];
+      newVariants.splice(index, 1);
+      return { ...prev, variants: newVariants };
     });
   };
 
@@ -249,8 +280,16 @@ export default function ProductsPage() {
       return;
     }
 
+    // Validar variantes
+    for (const v of formData.variants) {
+      if (!v.size || !v.price) {
+        showError('Todas las variantes deben tener tamaño y precio');
+        return;
+      }
+    }
+
     try {
-      const productData = {
+      const productData: any = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
@@ -259,7 +298,12 @@ export default function ProductsPage() {
         available: formData.available,
         restaurant_id: restaurantId
       };
-
+      // Siempre incluir variantes, incluso si es un array vacío
+      productData.variants = formData.variants.map(v => ({
+        size: v.size,
+        price: parseFloat(v.price),
+        imageUrl: v.image_url || undefined
+      }));
       if (editingProduct) {
         // Para editar, necesitamos el originalId
         if (!editingProduct.originalId) {
@@ -297,7 +341,16 @@ export default function ProductsPage() {
         throw new Error('No se encontró el producto o falta el ID original');
       }
 
-      await apiService.updateProduct(productId, { available: !currentAvailability }, restaurantId, product.originalId);
+      // Incluir las variantes existentes para que no se pierdan
+      const updateData: any = { available: !currentAvailability };
+      // Siempre incluir variantes, incluso si es un array vacío
+      updateData.variants = (product.variants || []).map((v: any) => ({
+        size: v.size,
+        price: v.price,
+        imageUrl: v.image_url || v.imageUrl || undefined
+      }));
+
+      await apiService.updateProduct(productId, updateData, restaurantId, product.originalId);
       const newStatus = !currentAvailability ? 'disponible' : 'no disponible';
       showSuccess(`Producto marcado como ${newStatus}`);
       loadProducts();
@@ -639,6 +692,40 @@ export default function ProductsPage() {
                     onChange={(e) => setFormData({...formData, image_url: e.target.value})}
                     className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-yellow-500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm mb-2">Variantes</label>
+                  {formData.variants.map((variant, i) => (
+                    <div key={i} className="flex gap-2 mb-2 items-center">
+                      <input
+                        type="text"
+                        placeholder="Tamaño"
+                        value={variant.size}
+                        onChange={e => handleVariantChange(i, 'size', e.target.value)}
+                        className="px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded w-24"
+                        required
+                      />
+                      <input
+                        type="number"
+                        placeholder="Precio"
+                        value={variant.price}
+                        onChange={e => handleVariantChange(i, 'price', e.target.value)}
+                        className="px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded w-24"
+                        min="0"
+                        required
+                      />
+                      <input
+                        type="url"
+                        placeholder="URL Imagen (opcional)"
+                        value={variant.image_url || ''}
+                        onChange={e => handleVariantChange(i, 'image_url', e.target.value)}
+                        className="px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded flex-1"
+                      />
+                      <button type="button" onClick={() => removeVariant(i)} className="text-red-400 hover:text-red-600 text-xl">×</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addVariant} className="mt-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">+ Añadir variante</button>
                 </div>
 
                 <div className="flex items-center">

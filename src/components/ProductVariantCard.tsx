@@ -12,6 +12,11 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
   const variant = hasVariants && product.variants ? product.variants[selected] : null;
 
+  // Imagen principal: la de la variante si existe, si no la del producto
+  const mainImageUrl = hasVariants && product.variants && (product.variants[selected] as any)?.image_url
+    ? (product.variants[selected] as any).image_url
+    : product.image_url;
+
   // Si no hay variantes, usar el precio base del producto
   const displayPrice = variant ? variant.price : product.price;
   const displaySize = variant ? variant.size : "Único";
@@ -30,9 +35,9 @@ export default function ProductVariantCard({ product }: { product: Product }) {
     <div className="bg-zinc-900 rounded-3xl p-4 shadow-2xl flex flex-col gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group h-full">
       {/* Imagen del producto - Mejorada para imágenes cuadradas */}
       <div className="relative aspect-square w-full bg-zinc-800 rounded-2xl overflow-hidden mb-3">
-        {product.image_url && !imageError ? (
+        {mainImageUrl && !imageError ? (
           <Image 
-            src={product.image_url} 
+            src={mainImageUrl} 
             alt={product.name} 
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -48,6 +53,45 @@ export default function ProductVariantCard({ product }: { product: Product }) {
           </div>
         )}
       </div>
+
+      {/* Miniaturas de variantes */}
+      {hasVariants && (
+        <div className="flex gap-2 justify-center mb-2">
+          {product.variants!.map((v, i) => (
+            <button
+              key={v.size + i}
+              className={`border-2 rounded-lg p-0.5 transition-all ${selected === i ? 'border-yellow-400' : 'border-zinc-700'}`}
+              onClick={() => { setSelected(i); setImageError(false); }}
+              aria-label={`Seleccionar variante ${v.size}`}
+              type="button"
+            >
+              <div className="w-10 h-10 bg-zinc-800 rounded-md overflow-hidden flex items-center justify-center">
+                {(v as any)?.image_url ? (
+                  <Image
+                    src={(v as any).image_url}
+                    alt={v.size}
+                    width={40}
+                    height={40}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  product.image_url ? (
+                    <Image
+                      src={product.image_url}
+                      alt={v.size}
+                      width={40}
+                      height={40}
+                      className="object-cover w-full h-full opacity-50"
+                    />
+                  ) : (
+                    <span className="text-zinc-500 text-lg">🍽️</span>
+                  )
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Información del producto */}
       <div className="flex-1 flex flex-col">
@@ -76,7 +120,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
                       ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
                       : 'bg-zinc-800 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
                   }`}
-                  onClick={() => setSelected(i)}
+                  onClick={() => { setSelected(i); setImageError(false); }}
                 >
                   {v.size}
                 </button>
