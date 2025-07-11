@@ -19,6 +19,7 @@ export type Product = {
   variants?: Array<{
     size: string;
     price: number;
+    imageUrl?: string;
   }>;
   originalId?: string; // Para GraphQL compatibility
 };

@@ -5,6 +5,7 @@
 export interface ProductVariant {
     size: string;
     price: number;
+    imageUrl?: string;
 }
 
 export interface Category {
@@ -82,7 +83,11 @@ export interface CreateProductInput {
     available: boolean;
     categoryId: string;
     restaurantId: string;
-    variants?: ProductVariant[];
+    variants?: Array<{
+        size: string;
+        price: number;
+        imageUrl?: string;
+    }>;
 }
 
 export interface UpdateProductInput {
@@ -92,7 +97,11 @@ export interface UpdateProductInput {
     imageUrl?: string;
     available?: boolean;
     categoryId?: string;
-    variants?: ProductVariant[];
+    variants?: Array<{
+        size: string;
+        price: number;
+        imageUrl?: string;
+    }>;
 }
 
 export interface CreateCategoryInput {
@@ -137,6 +146,7 @@ export interface LegacyProduct {
     variants?: Array<{
         size: string;
         price: number;
+        imageUrl?: string;
     }>;
     originalId?: string; // Para mantener referencia al ID de GraphQL
 }

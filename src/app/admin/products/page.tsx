@@ -34,7 +34,7 @@ export default function ProductsPage() {
     category: '',
     image_url: '',
     available: true,
-    variants: [] as Array<{ size: string; price: string; image_url?: string }>
+    variants: [] as Array<{ size: string; price: string; imageUrl?: string }>
   });
 
   const loadProducts = useCallback(async () => {
@@ -213,10 +213,10 @@ export default function ProductsPage() {
         image_url: product.image_url || '',
         available: product.available,
         variants: Array.isArray(product.variants)
-          ? product.variants.map((v: { size: string; price: number; image_url?: string }) => ({
+          ? product.variants.map((v: { size: string; price: number; imageUrl?: string }) => ({
               size: v.size,
               price: v.price.toString(),
-              image_url: v.image_url || ''
+              imageUrl: v.imageUrl || ''
             }))
           : []
       });
@@ -261,7 +261,7 @@ export default function ProductsPage() {
   const addVariant = () => {
     setFormData((prev) => ({
       ...prev,
-      variants: [...prev.variants, { size: '', price: '', image_url: '' }]
+      variants: [...prev.variants, { size: '', price: '', imageUrl: '' }]
     }));
   };
   const removeVariant = (index: number) => {
@@ -315,7 +315,7 @@ export default function ProductsPage() {
       productData.variants = formData.variants.map(v => ({
         size: v.size,
         price: parseFloat(v.price),
-        imageUrl: v.image_url || undefined
+        imageUrl: v.imageUrl || undefined
       }));
       if (editingProduct) {
         // Para editar, necesitamos el originalId
@@ -732,8 +732,8 @@ export default function ProductsPage() {
                       <input
                         type="url"
                         placeholder="URL Imagen (opcional)"
-                        value={variant.image_url || ''}
-                        onChange={e => handleVariantChange(i, 'image_url', e.target.value)}
+                        value={variant.imageUrl || ''}
+                        onChange={e => handleVariantChange(i, 'imageUrl', e.target.value)}
                         className="px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded flex-1"
                       />
                       <button type="button" onClick={() => removeVariant(i)} className="text-red-400 hover:text-red-600 text-xl">×</button>

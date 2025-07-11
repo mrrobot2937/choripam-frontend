@@ -22,6 +22,7 @@ export const PRODUCT_FRAGMENT = gql`
     variants {
       size
       price
+      imageUrl
     }
   }
 `;
@@ -267,111 +268,111 @@ export const ORDER_UPDATES = gql`
 
 // Variables para queries
 export interface GetProductsVariables {
-    restaurantId: string;
+  restaurantId: string;
 }
 
 export interface GetProductsByCategory {
-    restaurantId: string;
-    categoryId: string;
+  restaurantId: string;
+  categoryId: string;
 }
 
 export interface GetProductVariables {
-    productId: string;
+  productId: string;
 }
 
 export interface SearchProductsVariables {
-    restaurantId: string;
-    searchTerm: string;
+  restaurantId: string;
+  searchTerm: string;
 }
 
 export interface GetOrdersVariables {
-    restaurantId: string;
-    status?: string;
-    limit?: number;
+  restaurantId: string;
+  status?: string;
+  limit?: number;
 }
 
 export interface GetOrderVariables {
-    orderId: string;
+  orderId: string;
 }
 
 export interface GetRestaurantStatsVariables {
-    restaurantId: string;
+  restaurantId: string;
 }
 
 // Variables para mutations
 export interface CreateProductVariables {
-    input: {
-        name: string;
-        description: string;
-        price: number;
-        imageUrl?: string;
-        available: boolean;
-        categoryId: string;
-        restaurantId: string;
-        variants?: Array<{
-            size: string;
-            price: number;
-        }>;
-    };
+  input: {
+    name: string;
+    description: string;
+    price: number;
+    imageUrl?: string;
+    available: boolean;
+    categoryId: string;
+    restaurantId: string;
+    variants?: Array<{
+      size: string;
+      price: number;
+    }>;
+  };
 }
 
 export interface UpdateProductVariables {
-    productId: string;
-    input: {
-        name?: string;
-        description?: string;
-        price?: number;
-        imageUrl?: string;
-        available?: boolean;
-        categoryId?: string;
-        variants?: Array<{
-            size: string;
-            price: number;
-        }>;
-    };
+  productId: string;
+  input: {
+    name?: string;
+    description?: string;
+    price?: number;
+    imageUrl?: string;
+    available?: boolean;
+    categoryId?: string;
+    variants?: Array<{
+      size: string;
+      price: number;
+    }>;
+  };
 }
 
 export interface DeleteProductVariables {
-    productId: string;
+  productId: string;
 }
 
 export interface CreateCategoryVariables {
-    input: {
-        name: string;
-        description?: string;
-        restaurantId: string;
-    };
+  input: {
+    name: string;
+    description?: string;
+    restaurantId: string;
+  };
 }
 
 export interface CreateOrderVariables {
-    input: {
-        customerName: string;
-        customerPhone: string;
-        customerEmail?: string;
-        restaurantId: string;
-        products: Array<{
-            id: string;
-            quantity: number;
-            price: number;
-        }>;
-        total: number;
-        paymentMethod: string;
-        deliveryMethod: string;
-        mesa?: string;
-        deliveryAddress?: string;
-    };
+  input: {
+    customerName: string;
+    customerPhone: string;
+    customerEmail?: string;
+    restaurantId: string;
+    products: Array<{
+      id: string;
+      quantity: number;
+      price: number;
+    }>;
+    total: number;
+    paymentMethod: string;
+    deliveryMethod: string;
+    mesa?: string;
+    deliveryAddress?: string;
+  };
 }
 
 export interface UpdateOrderStatusVariables {
-    orderId: string;
-    status: string;
+  orderId: string;
+  status: string;
 }
 
 export interface DeleteOrderVariables {
-    orderId: string;
+  orderId: string;
 }
 
 export interface BulkUpdateProductAvailabilityVariables {
-    productIds: string[];
-    available: boolean;
+  productIds: string[];
+  available: boolean;
 } 
