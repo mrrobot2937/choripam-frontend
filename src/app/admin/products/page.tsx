@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { apiService, Product } from '../../../services/api-service';
 import { useToast, ToastManager } from '../../../components/Toast';
@@ -22,6 +22,10 @@ export default function ProductsPage() {
   });
   const [sortBy, setSortBy] = useState('name');
 
+  // Ref para evitar llamadas duplicadas
+  const loadingRef = useRef(false);
+  const lastRestaurantIdRef = useRef<string>('');
+
   // Datos del formulario
   const [formData, setFormData] = useState({
     name: '',
@@ -33,20 +37,44 @@ export default function ProductsPage() {
   });
 
   const loadProducts = useCallback(async () => {
+    // Evitar llamadas duplicadas
+    if (loadingRef.current) {
+      console.log('🔄 Ya hay una carga de productos en progreso, omitiendo...');
+      return;
+    }
+
+    // Verificar si el restaurantId cambió
+    if (lastRestaurantIdRef.current === restaurantId && products.length > 0) {
+      console.log('🔄 RestaurantId no cambió y ya hay productos, omitiendo carga...');
+      return;
+    }
+
     try {
+      loadingRef.current = true;
       setLoading(true);
       setError('');
       showInfo('Cargando productos...');
       
       // Obtener datos del usuario admin
       const adminData = localStorage.getItem('admin_user');
+      let currentRestaurantId = restaurantId;
+      
       if (adminData) {
         const userData = JSON.parse(adminData);
-        setRestaurantId(userData.restaurant_id || 'choripam');
+        currentRestaurantId = userData.restaurant_id || 'choripam';
+        
+        // Solo actualizar si realmente cambió
+        if (currentRestaurantId !== restaurantId) {
+          setRestaurantId(currentRestaurantId);
+        }
       }
 
-      const response = await apiService.getProducts(restaurantId);
+      console.log(`🔄 Cargando productos para restaurante: ${currentRestaurantId}`);
+      const response = await apiService.getProducts(currentRestaurantId);
+      console.log(`✅ Productos cargados: ${response.products.length}`);
+      
       setProducts(response.products);
+      lastRestaurantIdRef.current = currentRestaurantId;
       showSuccess(`Se cargaron ${response.products.length} productos exitosamente`);
       
     } catch (error) {
@@ -56,8 +84,9 @@ export default function ProductsPage() {
       showError(`Error cargando productos:\n${errorMessage}`);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
-  }, [restaurantId, showInfo, showSuccess, showError]);
+  }, [restaurantId, products.length]); // Removidas las dependencias problemáticas de toast
 
   const applyFilters = useCallback(() => {
     let filtered = [...products];
@@ -101,9 +130,19 @@ export default function ProductsPage() {
     setFilteredProducts(filtered);
   }, [products, filters, sortBy]);
 
+  // Cargar productos solo una vez al montar
   useEffect(() => {
+    console.log('🏪 PRODUCTS: Iniciando carga de productos...');
     loadProducts();
-  }, [loadProducts]);
+  }, []); // Solo se ejecuta al montar
+
+  // Efecto separado para recargar cuando cambie el restaurantId
+  useEffect(() => {
+    if (restaurantId && restaurantId !== lastRestaurantIdRef.current) {
+      console.log(`🔄 PRODUCTS: RestaurantId cambió a ${restaurantId}, recargando productos...`);
+      loadProducts();
+    }
+  }, [restaurantId]); // Solo cuando cambie restaurantId
 
   useEffect(() => {
     if (products.length > 0) {

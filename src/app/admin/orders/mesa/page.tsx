@@ -158,9 +158,7 @@ export default function MesaOrdersPage() {
 
   useEffect(() => {
     loadOrders();
-    // Actualizar cada 30 segundos
-    const interval = setInterval(loadOrders, 30000);
-    return () => clearInterval(interval);
+    // REMOVIDO: Intervalo duplicado - usar solo el hook de notificaciones
   }, [loadOrders]);
 
   useEffect(() => {

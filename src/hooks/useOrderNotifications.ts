@@ -20,7 +20,9 @@ export const useOrderNotifications = (
     const [newOrdersCount, setNewOrdersCount] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
-    const [previousOrderIds, setPreviousOrderIds] = useState<Set<string>>(new Set());
+
+    // Usar useRef para previousOrderIds para evitar recreaciones del callback
+    const previousOrderIdsRef = useRef<Set<string>>(new Set());
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const isPlayingRef = useRef(false);
@@ -92,7 +94,7 @@ export const useOrderNotifications = (
         }
     }, []);
 
-    // Función de verificación de órdenes
+    // Función de verificación de órdenes - SIN dependencias problemáticas
     const checkOrders = useCallback(async () => {
         try {
             const timestamp = new Date().toISOString();
@@ -119,10 +121,10 @@ export const useOrderNotifications = (
 
             const currentOrderIds = new Set(relevantOrders.map(order => order.order_id));
             console.log(`🆔 [${timestamp}] IDs actuales:`, Array.from(currentOrderIds));
-            console.log(`🆔 [${timestamp}] IDs anteriores:`, Array.from(previousOrderIds));
+            console.log(`🆔 [${timestamp}] IDs anteriores:`, Array.from(previousOrderIdsRef.current));
 
-            // Detectar nuevas órdenes
-            const newOrders = [...currentOrderIds].filter(id => !previousOrderIds.has(id));
+            // Detectar nuevas órdenes usando la ref
+            const newOrders = [...currentOrderIds].filter(id => !previousOrderIdsRef.current.has(id));
             console.log(`🆕 [${timestamp}] Nuevos pedidos detectados:`, newOrders);
 
             if (newOrders.length > 0) {
@@ -154,8 +156,8 @@ export const useOrderNotifications = (
                 console.log(`✅ [${timestamp}] No hay nuevas órdenes - sin alarma`);
             }
 
-            // Actualizar estado
-            setPreviousOrderIds(currentOrderIds);
+            // Actualizar estado usando la ref
+            previousOrderIdsRef.current = currentOrderIds;
             setLastCheckTime(new Date());
             console.log(`✅ [${timestamp}] Verificación completada`);
 
@@ -163,14 +165,14 @@ export const useOrderNotifications = (
             const timestamp = new Date().toISOString();
             console.error(`❌ [${timestamp}] Error verificando pedidos:`, error);
         }
-    }, [cleanRestaurantId, playAlarm, previousOrderIds]);
+    }, [cleanRestaurantId, playAlarm]); // Removida la dependencia problemática
 
     // Actualizar la ref cuando cambie la función
     useEffect(() => {
         checkOrdersRef.current = checkOrders;
     }, [checkOrders]);
 
-    // Configurar intervalo principal  
+    // Configurar intervalo principal - SOLO cuando cambien las dependencias estables
     useEffect(() => {
         console.log('🔔 Configurando notificaciones:', { enabled, intervalMs, restaurantId: cleanRestaurantId });
 
@@ -206,7 +208,7 @@ export const useOrderNotifications = (
                 clearInterval(intervalRef.current);
             }
         };
-    }, [enabled, intervalMs, cleanRestaurantId, checkOrders]);
+    }, [enabled, intervalMs, cleanRestaurantId]); // Removida la dependencia de checkOrders
 
     // Solicitar permisos de notificación
     useEffect(() => {
