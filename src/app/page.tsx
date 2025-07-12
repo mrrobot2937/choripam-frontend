@@ -137,7 +137,7 @@ export default function Home() {
                 {categoryProducts.length} producto{categoryProducts.length !== 1 ? 's' : ''}
               </span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {categoryProducts.map((product) => (
                 <ProductVariantCard key={product.id} product={product} />
               ))}

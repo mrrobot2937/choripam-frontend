@@ -1,0 +1,17 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo del logo -->
+  <rect width="200" height="60" rx="8" fill="#1F2937"/>
+  
+  <!-- Texto "Ay Wey" -->
+  <text x="100" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#F59E0B">
+    Ay Wey
+  </text>
+  
+  <!-- Icono de comida -->
+  <circle cx="30" cy="30" r="12" fill="#F59E0B"/>
+  <path d="M25 25 L35 35 M35 25 L25 35" stroke="#1F2937" stroke-width="2"/>
+  
+  <!-- Decoración -->
+  <circle cx="170" cy="20" r="3" fill="#F59E0B" opacity="0.6"/>
+  <circle cx="175" cy="40" r="2" fill="#F59E0B" opacity="0.4"/>
+</svg> 
