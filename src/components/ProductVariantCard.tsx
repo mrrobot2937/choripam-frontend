@@ -56,40 +56,42 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
       {/* Miniaturas de variantes */}
       {hasVariants && (
-        <div className="flex gap-1 md:gap-2 justify-center mb-2">
-          {product.variants!.map((v, i) => (
-            <button
-              key={v.size + i}
-              className={`border-2 rounded-lg p-0.5 transition-all ${selected === i ? 'border-yellow-400' : 'border-zinc-700'}`}
-              onClick={() => { setSelected(i); setImageError(false); }}
-              aria-label={`Seleccionar variante ${v.size}`}
-              type="button"
-            >
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-zinc-800 rounded-md overflow-hidden flex items-center justify-center">
-                {(v as { imageUrl?: string })?.imageUrl ? (
-                  <Image
-                    src={(v as { imageUrl?: string }).imageUrl!}
-                    alt={v.size}
-                    width={40}
-                    height={40}
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  product.image_url ? (
+        <div className="mb-2">
+          <div className="flex gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-2">
+            {product.variants!.map((v, i) => (
+              <button
+                key={v.size + i}
+                className={`border-2 rounded-lg p-1 transition-all flex-shrink-0 ${selected === i ? 'border-yellow-400' : 'border-zinc-700'}`}
+                onClick={() => { setSelected(i); setImageError(false); }}
+                aria-label={`Seleccionar variante ${v.size}`}
+                type="button"
+              >
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-zinc-800 rounded-md overflow-hidden flex items-center justify-center">
+                  {(v as { imageUrl?: string })?.imageUrl ? (
                     <Image
-                      src={product.image_url}
+                      src={(v as { imageUrl?: string }).imageUrl!}
                       alt={v.size}
-                      width={40}
-                      height={40}
-                      className="object-cover w-full h-full opacity-50"
+                      width={56}
+                      height={56}
+                      className="object-cover w-full h-full"
                     />
                   ) : (
-                    <span className="text-zinc-500 text-lg">🍽️</span>
-                  )
-                )}
-              </div>
-            </button>
-          ))}
+                    product.image_url ? (
+                      <Image
+                        src={product.image_url}
+                        alt={v.size}
+                        width={56}
+                        height={56}
+                        className="object-cover w-full h-full opacity-50"
+                      />
+                    ) : (
+                      <span className="text-zinc-500 text-lg">🍽️</span>
+                    )
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
