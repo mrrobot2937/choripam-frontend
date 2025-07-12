@@ -32,9 +32,9 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   }
 
   return (
-    <div className="bg-zinc-900 rounded-3xl p-4 shadow-2xl flex flex-col gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group h-full">
+    <div className="bg-zinc-900 rounded-3xl p-2 md:p-4 shadow-2xl flex flex-col gap-2 md:gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group h-full">
       {/* Imagen del producto - Mejorada para imágenes cuadradas */}
-      <div className="relative aspect-square w-full bg-zinc-800 rounded-2xl overflow-hidden mb-3">
+      <div className="relative aspect-square w-full bg-zinc-800 rounded-2xl overflow-hidden mb-2 md:mb-3">
         {mainImageUrl && !imageError ? (
           <Image 
             src={mainImageUrl} 
@@ -56,7 +56,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
       {/* Miniaturas de variantes */}
       {hasVariants && (
-        <div className="flex gap-2 justify-center mb-2">
+        <div className="flex gap-1 md:gap-2 justify-center mb-2">
           {product.variants!.map((v, i) => (
             <button
               key={v.size + i}
@@ -65,7 +65,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
               aria-label={`Seleccionar variante ${v.size}`}
               type="button"
             >
-              <div className="w-10 h-10 bg-zinc-800 rounded-md overflow-hidden flex items-center justify-center">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-zinc-800 rounded-md overflow-hidden flex items-center justify-center">
                 {(v as { imageUrl?: string })?.imageUrl ? (
                   <Image
                     src={(v as { imageUrl?: string }).imageUrl!}
@@ -95,13 +95,13 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
       {/* Información del producto */}
       <div className="flex-1 flex flex-col">
-        <h3 className="text-xl font-bold mb-2 line-clamp-2 leading-tight">{product.name}</h3>
-        <p className="text-gray-300 mb-3 text-sm line-clamp-3 leading-relaxed">{product.description}</p>
+        <h3 className="text-sm md:text-xl font-bold mb-1 md:mb-2 line-clamp-2 leading-tight">{product.name}</h3>
+        <p className="text-gray-300 mb-2 md:mb-3 text-xs md:text-sm line-clamp-2 md:line-clamp-3 leading-relaxed">{product.description}</p>
         
         {/* Categoría */}
         {product.category && (
-          <div className="mb-3">
-            <span className="inline-block px-3 py-1 text-xs bg-yellow-400 text-black rounded-full font-bold">
+          <div className="mb-2 md:mb-3">
+            <span className="inline-block px-2 md:px-3 py-1 text-xs bg-yellow-400 text-black rounded-full font-bold">
               {typeof product.category === 'string' ? product.category : product.category.name}
             </span>
           </div>
@@ -109,13 +109,13 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
         {/* Selector de variante (si las hay) */}
         {hasVariants && (
-          <div className="mb-3">
-            <p className="text-sm text-gray-400 mb-2 font-medium">Tamaño:</p>
-            <div className="flex gap-2 flex-wrap">
+          <div className="mb-2 md:mb-3">
+            <p className="text-xs md:text-sm text-gray-400 mb-1 md:mb-2 font-medium">Tamaño:</p>
+            <div className="flex gap-1 md:gap-2 flex-wrap">
               {product.variants!.map((v, i) => (
                 <button
                   key={`${v.size}-${i}`}
-                  className={`px-3 py-1 rounded-full font-bold border-2 transition-colors text-sm ${
+                  className={`px-2 md:px-3 py-1 rounded-full font-bold border-2 transition-colors text-xs md:text-sm ${
                     selected === i 
                       ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
                       : 'bg-zinc-800 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
@@ -130,8 +130,8 @@ export default function ProductVariantCard({ product }: { product: Product }) {
         )}
 
         {/* Precio y tiempo de preparación */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-yellow-400 font-extrabold text-lg">
+        <div className="flex items-center justify-between mb-2 md:mb-3">
+          <span className="text-yellow-400 font-extrabold text-base md:text-lg">
             ${displayPrice.toLocaleString()}
           </span>
           {product.preparation_time && (
@@ -143,8 +143,8 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
         {/* Estado de disponibilidad */}
         {product.is_available === false && (
-          <div className="mb-3">
-            <span className="inline-block px-3 py-1 text-xs bg-red-500 text-white rounded-full font-bold">
+          <div className="mb-2 md:mb-3">
+            <span className="inline-block px-2 md:px-3 py-1 text-xs bg-red-500 text-white rounded-full font-bold">
               No disponible
             </span>
           </div>
@@ -152,7 +152,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
         {/* Botón de agregar */}
         <button
-          className={`mt-auto px-4 py-3 rounded-full font-bold transition-colors text-base shadow-lg ${
+          className={`mt-auto px-3 md:px-4 py-2 md:py-3 rounded-full font-bold transition-colors text-xs md:text-base shadow-lg ${
             product.is_available === false
               ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
               : 'bg-yellow-400 text-black hover:bg-yellow-300 active:scale-95'
