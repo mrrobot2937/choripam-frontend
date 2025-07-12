@@ -176,7 +176,7 @@ class ApiService {
     }
 
     // Productos
-    async getProducts(restaurantId: string = 'choripam', category?: string): Promise<{ products: Product[]; restaurant_id: string; total: number }> {
+    async getProducts(restaurantId: string = 'palmira', category?: string): Promise<{ products: Product[]; restaurant_id: string; total: number }> {
         let endpoint = `/api/productos?restaurant_id=${restaurantId}`;
         if (category) {
             endpoint += `&category=${category}`;
@@ -194,7 +194,7 @@ class ApiService {
         };
     }
 
-    async getProduct(productId: string, restaurantId: string = 'choripam'): Promise<{ product: Product; restaurant_id: string }> {
+    async getProduct(productId: string, restaurantId: string = 'palmira'): Promise<{ product: Product; restaurant_id: string }> {
         const response = await this.request<{
             product: ApiProduct;
             restaurant_id: string;
@@ -206,7 +206,7 @@ class ApiService {
         };
     }
 
-    async createProduct(productData: CreateProductData, restaurantId: string = 'choripam'): Promise<{ success: boolean; product_id: number; message: string }> {
+    async createProduct(productData: CreateProductData, restaurantId: string = 'palmira'): Promise<{ success: boolean; product_id: number; message: string }> {
         // Mapear los datos del frontend al formato de la API
         const apiData = {
             ...productData,
@@ -257,14 +257,14 @@ class ApiService {
     }
 
     // Pedidos
-    async createOrder(orderData: CreateOrderData, restaurantId: string = 'choripam'): Promise<{ success: boolean; order_id: string; message: string }> {
+    async createOrder(orderData: CreateOrderData, restaurantId: string = 'palmira'): Promise<{ success: boolean; order_id: string; message: string }> {
         return this.request(`/api/pedidos?restaurant_id=${restaurantId}`, {
             method: 'POST',
             body: JSON.stringify(orderData),
         });
     }
 
-    async getOrders(restaurantId: string = 'choripam', status?: string, limit?: number): Promise<{
+    async getOrders(restaurantId: string = 'palmira', status?: string, limit?: number): Promise<{
         success: boolean;
         restaurant_id: string;
         orders: Order[];
@@ -277,7 +277,7 @@ class ApiService {
         return this.request(endpoint);
     }
 
-    async getOrderStatus(orderId: string, restaurantId: string = 'choripam'): Promise<Order> {
+    async getOrderStatus(orderId: string, restaurantId: string = 'palmira'): Promise<Order> {
         return this.request(`/api/pedidos?order_id=${orderId}&restaurant_id=${restaurantId}`);
     }
 
@@ -306,7 +306,7 @@ class ApiService {
     }
 
     // Categorías
-    async getCategories(restaurantId: string = 'choripam'): Promise<{
+    async getCategories(restaurantId: string = 'palmira'): Promise<{
         restaurant_id: string;
         categories: Array<{ id: string; name: string; description: string }>;
         total: number
@@ -315,7 +315,7 @@ class ApiService {
     }
 
     // Estadísticas (cuando esté disponible)
-    async getRestaurantStats(restaurantId: string = 'choripam'): Promise<{
+    async getRestaurantStats(restaurantId: string = 'palmira'): Promise<{
         restaurant_id: string;
         total_orders: number;
         status_breakdown: Record<string, number>;

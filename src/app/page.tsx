@@ -3,13 +3,17 @@ import { useState, useEffect } from "react";
 import { useCart } from "../contexts/CartContext";
 import { apiService, Product } from "../services/api-service";
 import ProductVariantCard from "../components/ProductVariantCard";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const { restaurantId } = useCart();
+  const [selectedLocation, setSelectedLocation] = useState<string>("palmira");
+  const { restaurantId, setRestaurantId } = useCart();
 
   // Función helper para obtener el nombre de la categoría de manera segura
   const getCategoryName = (category: string | { id: string; name: string } | undefined | null): string => {
@@ -36,6 +40,31 @@ export default function Home() {
     acc[categoryName].push(product);
     return acc;
   }, {} as Record<string, Product[]>);
+
+  // Función para cambiar de sede
+  const handleLocationChange = (location: string) => {
+    setSelectedLocation(location);
+    setSelectedCategory(null); // Resetear categoría al cambiar sede
+    
+    // Mapear las ubicaciones de la UI a los IDs del backend
+    const backendRestaurantId = location === "palmira" ? "choripam" : location;
+    setRestaurantId(backendRestaurantId);
+    
+    // Actualizar URL
+    const params = new URLSearchParams(searchParams);
+    params.set('sede', location);
+    router.push(`?${params.toString()}`);
+  };
+
+  // Inicializar sede desde URL al cargar la página
+  useEffect(() => {
+    const sedeFromUrl = searchParams.get('sede');
+    if (sedeFromUrl && (sedeFromUrl === 'palmira' || sedeFromUrl === 'la-buitrera')) {
+      setSelectedLocation(sedeFromUrl);
+      const backendRestaurantId = sedeFromUrl === "palmira" ? "choripam" : sedeFromUrl;
+      setRestaurantId(backendRestaurantId);
+    }
+  }, [searchParams, setRestaurantId]);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -91,8 +120,35 @@ export default function Home() {
       <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-zinc-800 py-4 px-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-extrabold text-center mb-2">Menú</h1>
+          
+          {/* Selector de sede */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-zinc-900 rounded-full p-2 border border-zinc-700 shadow-lg">
+              <button
+                className={`px-8 py-3 rounded-full font-bold transition-colors mx-1 ${
+                  selectedLocation === "palmira"
+                    ? 'bg-yellow-400 text-black shadow'
+                    : 'bg-transparent text-white hover:bg-zinc-800'
+                }`}
+                onClick={() => handleLocationChange("palmira")}
+              >
+                Palmira
+              </button>
+              <button
+                className={`px-8 py-3 rounded-full font-bold transition-colors mx-1 ${
+                  selectedLocation === "la-buitrera"
+                    ? 'bg-yellow-400 text-black shadow'
+                    : 'bg-transparent text-white hover:bg-zinc-800'
+                }`}
+                onClick={() => handleLocationChange("la-buitrera")}
+              >
+                La Buitrera
+              </button>
+            </div>
+          </div>
+          
           <p className="text-center text-gray-400 mb-6 capitalize">
-            {restaurantId} • {products.length} productos disponibles
+            {selectedLocation === "palmira" ? "Palmira" : "La Buitrera"} • {products.length} productos disponibles
           </p>
           
           {/* Contenedor con scroll horizontal */}

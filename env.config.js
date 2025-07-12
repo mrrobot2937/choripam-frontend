@@ -8,7 +8,7 @@ const config = {
   ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT || 'production',
   
   // Configuración del restaurante
-  DEFAULT_RESTAURANT_ID: 'choripam',
+  DEFAULT_RESTAURANT_ID: 'palmira',
   
   // URLs de la aplicación
   APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
