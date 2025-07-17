@@ -28,8 +28,8 @@ export default function DomicilioOrdersPage() {
       }
 
       // Cargar órdenes de domicilio
-      const response = await apiService.getOrders(restaurantId);
-      const domicilioOrders = response.orders.filter(order => order.delivery_method === 'domicilio');
+      const response = await apiService.getOrders('choripam');
+      const domicilioOrders = response.orders.filter(order => order.restaurant_id === 'choripam' && order.delivery_method === 'domicilio');
       setOrders(domicilioOrders);
       
     } catch (error) {

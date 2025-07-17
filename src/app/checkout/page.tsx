@@ -2,7 +2,7 @@
 import { useCart, CartItem } from "../../contexts/CartContext";
 import { useState } from "react";
 import Image from "next/image";
-import { apiService, CreateOrderData } from "../../services/api-service";
+// import { apiService, CreateOrderData } from "../../services/api-service";
 
 const paymentOptions = [
   { value: "efectivo", label: "Efectivo a la entrega" },
@@ -64,33 +64,62 @@ export default function CheckoutPage() {
     
     try {
       // Convertir productos del carrito al formato requerido por la API
-      const productos = cart.map((item, index) => ({
-        id: index + 1, // Usar índice como ID temporal
-        nombre: getProductDisplayName(item), // Agregar el nombre del producto
-        cantidad: item.quantity,
-        precio: item.price
+      const productos = cart.map((item) => ({
+        id: item.originalId || String(item.id),
+        quantity: item.quantity,
+        price: item.price,
+        variant: item.selectedVariant?.size
       }));
 
-      const orderData: CreateOrderData = {
-        nombre: name,
-        telefono: phone,
-        correo: email,
-        direccion: delivery === "domicilio" ? address : "",
-        mesa: delivery === "mesa" ? mesa : "",
-        productos: productos,
+      const orderInput = {
+        customerName: name,
+        customerPhone: phone,
+        customerEmail: email,
+        restaurantId: restaurantId,
+        products: productos,
         total: total,
-        metodo_pago: payment,
-        modalidad_entrega: delivery
+        paymentMethod: payment,
+        deliveryMethod: delivery,
+        mesa: delivery === "mesa" ? mesa : "",
+        deliveryAddress: delivery === "domicilio" ? address : ""
       };
 
-      const response = await apiService.createOrder(orderData, restaurantId);
+      // Construir el query de GraphQL
+      const graphqlQuery = {
+        operationName: "CreateOrder",
+        variables: {
+          input: orderInput
+        },
+        query: `mutation CreateOrder($input: CreateOrderInput!) {
+          createOrder(orderInput: $input) {
+            success
+            message
+            id
+            __typename
+          }
+        }`
+      };
+
+      const res = await fetch("https://choripam-backend-real.vercel.app/graphql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(graphqlQuery),
+      });
+
+      if (!res.ok) {
+        const errorBody = await res.text();
+        throw new Error(`Error en la petición: ${res.status} ${res.statusText} - ${errorBody}`);
+      }
       
-      if (response.success) {
-        setOrderId(response.order_id);
+      const result = await res.json();
+      if (result.data?.createOrder?.success) {
+        setOrderId(result.data.createOrder.id);
         setOrderSent(true);
         clearCart();
       } else {
-        throw new Error(response.message || "Error al crear el pedido");
+        throw new Error(result.data?.createOrder?.message || "Error al crear el pedido");
       }
     } catch (err) {
       console.error("Error al crear pedido:", err);

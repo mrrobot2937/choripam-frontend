@@ -50,6 +50,7 @@ export const ORDER_FRAGMENT = gql`
       quantity
       price
       total
+      variant
     }
   }
 `;

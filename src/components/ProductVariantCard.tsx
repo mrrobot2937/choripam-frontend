@@ -22,11 +22,9 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   const displaySize = variant ? variant.size : "Único";
 
   function handleAdd() {
-    // Si hay variantes, usar la variante seleccionada
-    if (hasVariants && variant) {
+    if (variant) {
       addToCart(product, variant);
     } else {
-      // Si no hay variantes, agregar el producto tal como está
       addToCart(product);
     }
   }

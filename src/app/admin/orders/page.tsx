@@ -22,8 +22,8 @@ export default function AdminOrders() {
         setRestaurantId(userData.restaurant_id || 'choripam');
       }
 
-      const response = await apiService.getOrders(restaurantId, statusFilter || undefined);
-      setOrders(response.orders);
+      const response = await apiService.getOrders('choripam', statusFilter || undefined);
+      setOrders(response.orders.filter(order => order.restaurant_id === 'choripam'));
       
     } catch (error) {
       console.error('Error cargando órdenes:', error);

@@ -58,7 +58,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function addToCart(product: Product, variant?: { size: string; price: number }) {
     setCart((prev) => {
-      const cartKey = variant ? `${product.id}-${variant.size}` : String(product.id);
+      // Si el producto tiene variantes y no se pasa variante, usar la primera
+      let selected = variant;
+      if (!selected && Array.isArray(product.variants) && product.variants.length > 0) {
+        selected = {
+          size: product.variants[0].size,
+          price: product.variants[0].price,
+        };
+      }
+      const cartKey = selected ? `${product.id}-${selected.size}` : String(product.id);
       const found = prev.find((item) => {
         const itemKey = item.selectedVariant ? `${item.id}-${item.selectedVariant.size}` : String(item.id);
         return itemKey === cartKey;
@@ -74,8 +82,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const newItem: CartItem = {
         ...product,
         quantity: 1,
-        selectedVariant: variant,
-        price: variant ? variant.price : product.price,
+        selectedVariant: selected,
+        price: selected ? selected.price : product.price,
         // Normalizar propiedades de disponibilidad
         available: product.available ?? product.is_available,
         is_available: product.available ?? product.is_available

@@ -24,6 +24,7 @@ interface Order {
     quantity: number;
     price: number;
     total: number;
+    variant?: string; // Added variant field
   }>;
   time_elapsed: string;
 }
@@ -141,7 +142,11 @@ export default function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
           {order.products.map((product, index) => (
             <div key={index} className="flex justify-between items-center text-sm">
               <span className="text-gray-300">
-                {product.name} x{product.quantity}
+                {product.name}
+                {product.variant ? (
+                  <span className="ml-2 text-xs text-yellow-300 font-medium">({product.variant})</span>
+                ) : null}
+                {' '}x{product.quantity}
               </span>
               <span className="text-yellow-400 font-semibold">
                 {formatCurrency(product.total)}

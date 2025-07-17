@@ -50,7 +50,7 @@ export default function MesaOrdersPage() {
 
       // FORZAR actualización de datos frescos
       console.log(`📡 MANUAL: [${timestamp}] Solicitando TODAS las órdenes con forceRefresh...`);
-      const response = await apiService.getOrders(currentRestaurantId, undefined, undefined, true);
+      const response = await apiService.getOrders('choripam', undefined, undefined, true);
       console.log(`📦 MANUAL: [${timestamp}] Respuesta completa API:`, {
         success: response.success,
         total_count: response.total_count,
@@ -67,8 +67,8 @@ export default function MesaOrdersPage() {
         throw new Error('Respuesta inválida de API - no hay array de órdenes');
       }
       
-      // Filtrar SOLO órdenes de mesa
-      const allOrders = response.orders;
+      // Filtrar SOLO órdenes de choripam y de mesa
+      const allOrders = response.orders.filter(order => order.restaurant_id === 'choripam');
       const mesaOrders = allOrders.filter(order => order.delivery_method === 'mesa');
       
       console.log(`🪑 MANUAL: [${timestamp}] Filtrado de órdenes:`, {

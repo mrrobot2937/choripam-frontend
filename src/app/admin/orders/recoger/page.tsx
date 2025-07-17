@@ -27,8 +27,8 @@ export default function RecogerOrdersPage() {
       }
 
       // Cargar órdenes para recoger
-      const response = await apiService.getOrders(restaurantId);
-      const recogerOrders = response.orders.filter(order => order.delivery_method === 'recoger');
+      const response = await apiService.getOrders('choripam');
+      const recogerOrders = response.orders.filter(order => order.restaurant_id === 'choripam' && order.delivery_method === 'recoger');
       setOrders(recogerOrders);
       
     } catch (error) {

@@ -28,7 +28,7 @@ export default function SimpleCartPanel({ open, onClose }: { open: boolean; onCl
     try {
       // Crear datos del pedido simplificados
       const orderData = {
-        nombre: "Cliente Ay Wey",
+        nombre: "Cliente Choripam",
         telefono: "3000000000",
         correo: "cliente@aywey.com",
         productos: cart.map(item => ({
@@ -79,7 +79,7 @@ export default function SimpleCartPanel({ open, onClose }: { open: boolean; onCl
     <div className={`fixed top-0 right-0 h-full w-full max-w-md bg-zinc-950 text-white shadow-2xl z-[100] transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}>
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between p-6 border-b border-zinc-800">
-          <h2 className="text-2xl font-bold">Tu carrito - Ay Wey</h2>
+          <h2 className="text-2xl font-bold">Tu carrito - Choripam</h2>
           <button onClick={onClose} className="text-2xl font-bold text-yellow-400 hover:text-yellow-300">×</button>
         </div>
         
