@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useCart } from "../contexts/CartContext";
-import { apiService, Product } from "../services/api-service";
+import { Product } from "../services/api-service";
 import ProductVariantCard from "../components/ProductVariantCard";
 import { useRouter, useSearchParams } from "next/navigation";
+import graphqlApiService from "../services/graphql-api";
 
 export default function Home() {
   const router = useRouter();
@@ -82,8 +83,7 @@ export default function Home() {
         setLoading(true);
         setError(null);
         
-        const sedeVar = selectedLocation;
-        const response = await apiService.getProducts(restaurantId);
+        const response = await graphqlApiService.getProducts(restaurantId, undefined, selectedLocation);
         setProducts(response.products);
       } catch (err) {
         console.error('Error cargando productos:', err);
