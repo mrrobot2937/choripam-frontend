@@ -56,6 +56,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [restaurantId, setRestaurantId] = useState<string>("choripam");
 
+  // Limpiar carrito cuando nos pidan (cambio de sede)
+  React.useEffect(() => {
+    const handler = () => setCart([]);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('clear-cart', handler as EventListener);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('clear-cart', handler as EventListener);
+      }
+    };
+  }, []);
+
   function addToCart(product: Product, variant?: { size: string; price: number }) {
     setCart((prev) => {
       // Si el producto tiene variantes y no se pasa variante, usar la primera

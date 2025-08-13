@@ -50,17 +50,17 @@ class GraphQLApiService {
     /**
      * Productos
      */
-    async getProducts(restaurantId: string = this.defaultRestaurantId, category?: string): Promise<{
+    async getProducts(restaurantId: string = this.defaultRestaurantId, category?: string, sede?: string): Promise<{
         products: LegacyProduct[];
         restaurant_id: string;
         total: number;
     }> {
         try {
-            console.log(`🔄 Obteniendo productos para restaurante: ${restaurantId}`);
+            console.log(`🔄 Obteniendo productos para restaurante: ${restaurantId} sede: ${sede || '-'} `);
 
             const { data } = await apolloClient.query({
                 query: GET_PRODUCTS,
-                variables: { restaurantId },
+                variables: { restaurantId, sede },
                 fetchPolicy: 'cache-first'
             });
 

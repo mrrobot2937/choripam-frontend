@@ -14,6 +14,7 @@ export const PRODUCT_FRAGMENT = gql`
     available
     preparationTime
     restaurantId
+    sede
     category {
       id
       name
@@ -70,8 +71,8 @@ export const CATEGORY_FRAGMENT = gql`
 // Obtener productos
 export const GET_PRODUCTS = gql`
   ${PRODUCT_FRAGMENT}
-  query GetProducts($restaurantId: String!) {
-    products(restaurantId: $restaurantId) {
+  query GetProducts($restaurantId: String!, $sede: String) {
+    products(restaurantId: $restaurantId, sede: $sede) {
       ...ProductFields
     }
   }

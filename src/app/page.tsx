@@ -48,6 +48,19 @@ export default function Home() {
     
     // Mapear las ubicaciones de la UI a los IDs del backend
     const backendRestaurantId = location === "palmira" ? "choripam" : location;
+
+    // Si cambia de sede visual, limpiar carrito para no mezclar
+    if (typeof window !== 'undefined') {
+      const previousSede = sessionStorage.getItem('current_sede');
+      if (previousSede && previousSede !== location) {
+        try {
+          const event = new CustomEvent('clear-cart');
+          window.dispatchEvent(event);
+        } catch {}
+      }
+      sessionStorage.setItem('current_sede', location);
+    }
+
     setRestaurantId(backendRestaurantId);
     
     // Actualizar URL
@@ -56,14 +69,11 @@ export default function Home() {
     router.push(`?${params.toString()}`);
   };
 
-  // Inicializar sede desde URL al cargar la página
   useEffect(() => {
-    const sedeFromUrl = searchParams.get('sede');
-    if (sedeFromUrl && (sedeFromUrl === 'palmira' || sedeFromUrl === 'la-buitrera')) {
-      setSelectedLocation(sedeFromUrl);
-      const backendRestaurantId = sedeFromUrl === "palmira" ? "choripam" : sedeFromUrl;
-      setRestaurantId(backendRestaurantId);
-    }
+    const sedeFromUrl = searchParams.get('sede') || 'palmira';
+    setSelectedLocation(sedeFromUrl);
+    const backendRestaurantId = sedeFromUrl === "palmira" ? "choripam" : sedeFromUrl;
+    setRestaurantId(backendRestaurantId);
   }, [searchParams, setRestaurantId]);
 
   useEffect(() => {
@@ -72,6 +82,7 @@ export default function Home() {
         setLoading(true);
         setError(null);
         
+        const sedeVar = selectedLocation;
         const response = await apiService.getProducts(restaurantId);
         setProducts(response.products);
       } catch (err) {
@@ -83,7 +94,7 @@ export default function Home() {
     };
 
     loadProducts();
-  }, [restaurantId]);
+  }, [restaurantId, selectedLocation]);
 
   if (loading) {
     return (
