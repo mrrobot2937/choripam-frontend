@@ -61,7 +61,7 @@ class GraphQLApiService {
             const { data } = await apolloClient.query({
                 query: GET_PRODUCTS,
                 variables: { restaurantId, sede },
-                fetchPolicy: 'cache-first'
+                fetchPolicy: 'network-only'
             });
 
             let products: Product[] = data.products || [];

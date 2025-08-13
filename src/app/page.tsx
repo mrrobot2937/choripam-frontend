@@ -78,22 +78,27 @@ export default function Home() {
   }, [searchParams, setRestaurantId]);
 
   useEffect(() => {
+    let isActive = true;
     const loadProducts = async () => {
       try {
         setLoading(true);
         setError(null);
+        setProducts([]); // limpiar listado para evitar parpadeos de sede previa
         
-        const response = await graphqlApiService.getProducts(restaurantId, undefined, selectedLocation);
+        const currentSede = selectedLocation;
+        const response = await graphqlApiService.getProducts(restaurantId, undefined, currentSede);
+        if (!isActive) return;
         setProducts(response.products);
       } catch (err) {
         console.error('Error cargando productos:', err);
-        setError('Error cargando el menú. Por favor, intenta nuevamente.');
+        if (isActive) setError('Error cargando el menú. Por favor, intenta nuevamente.');
       } finally {
-        setLoading(false);
+        if (isActive) setLoading(false);
       }
     };
 
     loadProducts();
+    return () => { isActive = false; };
   }, [restaurantId, selectedLocation]);
 
   if (loading) {
