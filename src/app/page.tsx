@@ -47,8 +47,8 @@ export default function Home() {
     setSelectedLocation(location);
     setSelectedCategory(null); // Resetear categoría al cambiar sede
     
-    // Mapear las ubicaciones de la UI a los IDs del backend
-    const backendRestaurantId = location === "palmira" ? "choripam" : location;
+    // Siempre usar el mismo restaurantId del backend
+    const backendRestaurantId = "choripam";
 
     // Si cambia de sede visual, limpiar carrito para no mezclar
     if (typeof window !== 'undefined') {
@@ -73,7 +73,7 @@ export default function Home() {
   useEffect(() => {
     const sedeFromUrl = searchParams.get('sede') || 'palmira';
     setSelectedLocation(sedeFromUrl);
-    const backendRestaurantId = sedeFromUrl === "palmira" ? "choripam" : sedeFromUrl;
+    const backendRestaurantId = "choripam";
     setRestaurantId(backendRestaurantId);
   }, [searchParams, setRestaurantId]);
 
