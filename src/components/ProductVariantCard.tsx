@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useCart, Product } from "../contexts/CartContext";
 import Image from "next/image";
 
@@ -7,27 +7,66 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const [selected, setSelected] = useState(0);
   const [imageError, setImageError] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
   
   // Verificar si el producto tiene variantes
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
-  const variant = hasVariants && product.variants ? product.variants[selected] : null;
+  
+  // Efecto para forzar actualización del precio en dispositivos problemáticos
+  useEffect(() => {
+    // Forzar actualización del componente cuando cambie la variante seleccionada
+    setForceUpdate(prev => prev + 1);
+  }, [selected]);
+  
+  // Usar useMemo para calcular la variante actual de manera más eficiente
+  const variant = useMemo(() => {
+    if (hasVariants && product.variants && product.variants[selected]) {
+      return product.variants[selected];
+    }
+    return null;
+  }, [hasVariants, product.variants, selected]);
 
   // Imagen principal: la de la variante si existe, si no la del producto
-  const mainImageUrl = hasVariants && product.variants && (product.variants[selected] as { imageUrl?: string })?.imageUrl
-    ? (product.variants[selected] as { imageUrl?: string }).imageUrl
-    : product.image_url;
+  const mainImageUrl = useMemo(() => {
+    if (variant && (variant as { imageUrl?: string })?.imageUrl) {
+      return (variant as { imageUrl?: string }).imageUrl;
+    }
+    return product.image_url;
+  }, [variant, product.image_url]);
 
-  // Si no hay variantes, usar el precio base del producto
-  const displayPrice = variant ? variant.price : product.price;
-  const displaySize = variant ? variant.size : "Único";
+  // Calcular precio y tamaño con useMemo para evitar recálculos innecesarios
+  const displayPrice = useMemo(() => {
+    // Incluir forceUpdate para garantizar actualización en dispositivos problemáticos
+    return variant ? variant.price : product.price;
+  }, [variant, product.price, forceUpdate]);
+  
+  const displaySize = useMemo(() => {
+    return variant ? variant.size : "Único";
+  }, [variant, forceUpdate]);
 
-  function handleAdd() {
+  // Función optimizada para cambiar variante
+  const handleVariantChange = useCallback((index: number) => {
+    setSelected(index);
+    setImageError(false);
+    
+    // Forzar actualización del DOM en dispositivos móviles
+    if (typeof window !== 'undefined') {
+      // Pequeño timeout para garantizar el re-renderizado en algunos dispositivos
+      setTimeout(() => {
+        // Trigger a custom event to notify about variant change
+        const event = new CustomEvent('variant-changed', { detail: { index } });
+        window.dispatchEvent(event);
+      }, 0);
+    }
+  }, []);
+
+  const handleAdd = useCallback(() => {
     if (variant) {
       addToCart(product, variant);
     } else {
       addToCart(product);
     }
-  }
+  }, [variant, product, addToCart]);
 
   return (
     <div className="bg-zinc-900 rounded-3xl p-2 md:p-4 shadow-2xl flex flex-col gap-2 md:gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group h-full">
@@ -58,9 +97,9 @@ export default function ProductVariantCard({ product }: { product: Product }) {
           <div className="flex gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-2">
             {product.variants!.map((v, i) => (
               <button
-                key={v.size + i}
+                key={`variant-thumb-${i}-${v.size}`}
                 className={`border-2 rounded-lg p-1 transition-all flex-shrink-0 ${selected === i ? 'border-yellow-400' : 'border-zinc-700'}`}
-                onClick={() => { setSelected(i); setImageError(false); }}
+                onClick={() => handleVariantChange(i)}
                 aria-label={`Seleccionar variante ${v.size}`}
                 type="button"
               >
@@ -114,13 +153,13 @@ export default function ProductVariantCard({ product }: { product: Product }) {
             <div className="flex gap-1 md:gap-2 flex-wrap">
               {product.variants!.map((v, i) => (
                 <button
-                  key={`${v.size}-${i}`}
+                  key={`variant-btn-${i}-${v.size}`}
                   className={`px-2 md:px-3 py-1 rounded-full font-bold border-2 transition-colors text-xs md:text-sm ${
                     selected === i 
                       ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
                       : 'bg-zinc-800 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
                   }`}
-                  onClick={() => { setSelected(i); setImageError(false); }}
+                  onClick={() => handleVariantChange(i)}
                 >
                   {v.size}
                 </button>
@@ -131,8 +170,12 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
         {/* Precio y tiempo de preparación */}
         <div className="flex items-center justify-between mb-2 md:mb-3">
-          <span className="text-yellow-400 font-extrabold text-base md:text-lg">
-            ${displayPrice.toLocaleString()}
+          <span 
+            key={`price-${selected}-${displayPrice}`}
+            className="text-yellow-400 font-extrabold text-base md:text-lg transition-all duration-200"
+            style={{ willChange: 'contents' }}
+          >
+            ${displayPrice.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </span>
           {product.preparation_time && (
             <span className="text-gray-400 text-xs font-medium">
