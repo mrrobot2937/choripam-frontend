@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "../contexts/CartContext";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 
 type Product = {
@@ -13,6 +14,11 @@ type Product = {
 
 export default function ProductList({ products }: { products: Product[] }) {
   const { cart, addToCart, removeFromCart } = useCart();
+  const [expandedById, setExpandedById] = useState<Record<number, boolean>>({});
+
+  const toggleExpanded = useCallback((id: number) => {
+    setExpandedById((prev) => ({ ...prev, [id]: !prev[id] }));
+  }, []);
 
   function getQuantity(productId: number) {
     return cart.find((item) => item.id === productId)?.quantity || 0;
@@ -22,8 +28,9 @@ export default function ProductList({ products }: { products: Product[] }) {
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
       {products.map((product) => {
         const quantity = getQuantity(product.id);
+        const expanded = !!expandedById[product.id];
         return (
-          <div key={product.id} className="bg-zinc-900 rounded-3xl p-4 shadow-2xl flex flex-col gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group h-full">
+          <div key={product.id} className="bg-zinc-900 rounded-3xl p-4 shadow-2xl hover:shadow-amber-400/10 transform-gpu hover:-translate-y-0.5 transition-all flex flex-col gap-3 border border-zinc-800 hover:border-yellow-400 relative overflow-hidden group h-full">
             {/* Imagen del producto - Mejorada para imágenes cuadradas */}
             <div className="relative aspect-square w-full bg-zinc-800 rounded-2xl overflow-hidden mb-3">
               {product.imageUrl ? (
@@ -43,14 +50,24 @@ export default function ProductList({ products }: { products: Product[] }) {
             </div>
             
             <div className="flex-1 flex flex-col">
-              <h3 className="text-xl font-bold mb-2 line-clamp-2 leading-tight">{product.name}</h3>
-              <p className="text-gray-300 mb-3 text-sm line-clamp-3 leading-relaxed">{product.description}</p>
+              <h3 className="text-lg md:text-xl font-bold mb-1 md:mb-2 line-clamp-2 leading-tight">{product.name}</h3>
+              <p className={`text-gray-300 mb-1 md:mb-3 text-sm leading-relaxed ${expanded ? '' : 'line-clamp-3'} md:line-clamp-3`}>{product.description}</p>
+              {product.description && product.description.length > 120 && (
+                <button
+                  type="button"
+                  className="md:hidden self-start text-yellow-400 text-xs font-semibold hover:underline mb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 rounded"
+                  aria-expanded={expanded}
+                  onClick={() => toggleExpanded(product.id)}
+                >
+                  {expanded ? 'Ver menos' : 'Ver más'}
+                </button>
+              )}
               <span className="text-yellow-400 font-extrabold text-lg mb-3">${product.price.toLocaleString()}</span>
               
             {/* Controles de cantidad */}
               <div className="flex items-center gap-3 mb-3">
               <button
-                className="w-8 h-8 rounded-full bg-zinc-800 text-yellow-400 border-2 border-yellow-400 font-bold text-xl flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-colors"
+                className="w-8 h-8 rounded-full bg-zinc-800 text-yellow-400 border-2 border-yellow-400 font-bold text-xl flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
                 onClick={() => removeFromCart(String(product.id))}
                 disabled={quantity === 0}
                 aria-label="Restar"
@@ -59,7 +76,7 @@ export default function ProductList({ products }: { products: Product[] }) {
               </button>
               <span className="text-lg font-bold w-6 text-center">{quantity}</span>
               <button
-                className="w-8 h-8 rounded-full bg-yellow-400 text-black font-bold text-xl flex items-center justify-center hover:bg-yellow-300 transition-colors"
+                className="w-8 h-8 rounded-full bg-yellow-400 text-black font-bold text-xl flex items-center justify-center hover:bg-yellow-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
                 onClick={() => addToCart(product)}
                 aria-label="Sumar"
               >
@@ -71,7 +88,7 @@ export default function ProductList({ products }: { products: Product[] }) {
               <div className="mb-3 min-h-[24px] text-green-400 font-bold text-sm"></div>
               
             <button
-                className="mt-auto px-4 py-3 rounded-full bg-yellow-400 text-black font-bold hover:bg-yellow-300 active:scale-95 transition-colors text-base shadow-lg"
+                className="mt-auto px-4 py-3 rounded-full bg-yellow-400 text-black font-bold hover:bg-yellow-300 active:scale-95 transition-colors text-base shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
               onClick={() => addToCart(product)}
             >
               Agregar al carrito

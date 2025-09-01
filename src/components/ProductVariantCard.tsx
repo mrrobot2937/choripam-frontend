@@ -8,6 +8,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   const [selected, setSelected] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   
   // Verificar si el producto tiene variantes
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
@@ -69,7 +70,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   }, [variant, product, addToCart]);
 
   return (
-    <div className="bg-zinc-900 rounded-3xl p-2 md:p-4 shadow-2xl flex flex-col gap-2 md:gap-3 border border-zinc-800 hover:border-yellow-400 transition-colors relative overflow-hidden group h-full">
+    <div className="bg-zinc-900 rounded-3xl p-2 md:p-4 shadow-2xl hover:shadow-amber-400/10 transform-gpu hover:-translate-y-0.5 transition-all flex flex-col gap-2 md:gap-3 border border-zinc-800 hover:border-yellow-400 relative overflow-hidden group h-full">
       {/* Imagen del producto - Mejorada para imágenes cuadradas */}
       <div className="relative aspect-square w-full bg-zinc-800 rounded-2xl overflow-hidden mb-2 md:mb-3">
         {mainImageUrl && !imageError ? (
@@ -135,7 +136,23 @@ export default function ProductVariantCard({ product }: { product: Product }) {
       {/* Información del producto */}
       <div className="flex-1 flex flex-col">
         <h3 className="text-sm md:text-xl font-bold mb-1 md:mb-2 line-clamp-2 leading-tight">{product.name}</h3>
-        <p className="text-gray-300 mb-2 md:mb-3 text-xs md:text-sm line-clamp-2 md:line-clamp-3 leading-relaxed">{product.description}</p>
+        <p
+          className={`text-gray-300 mb-1 md:mb-3 text-xs md:text-sm leading-relaxed ${
+            descriptionExpanded ? '' : 'line-clamp-3'
+          } md:line-clamp-3`}
+        >
+          {product.description}
+        </p>
+        {product.description && product.description.length > 120 && (
+          <button
+            type="button"
+            className="md:hidden self-start text-yellow-400 text-xs font-semibold hover:underline mb-1"
+            aria-expanded={descriptionExpanded}
+            onClick={() => setDescriptionExpanded((prev) => !prev)}
+          >
+            {descriptionExpanded ? 'Ver menos' : 'Ver más'}
+          </button>
+        )}
         
         {/* Categoría */}
         {product.category && (
@@ -154,7 +171,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
               {product.variants!.map((v, i) => (
                 <button
                   key={`variant-btn-${i}-${v.size}`}
-                  className={`px-2 md:px-3 py-1 rounded-full font-bold border-2 transition-colors text-xs md:text-sm ${
+                  className={`px-2 md:px-3 py-1 rounded-full font-bold border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 text-xs md:text-sm ${
                     selected === i 
                       ? 'bg-yellow-400 text-black border-yellow-400 shadow' 
                       : 'bg-zinc-800 border-zinc-700 text-white hover:bg-yellow-400 hover:text-black'
