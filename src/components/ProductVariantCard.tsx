@@ -8,7 +8,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
   const [selected, setSelected] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  
   
   // Verificar si el producto tiene variantes
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
@@ -82,6 +82,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setImageError(true)}
             placeholder="blur"
+            unoptimized
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkrHB0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+Rg=" 
           />
         ) : (
@@ -112,6 +113,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
                       width={56}
                       height={56}
                       className="object-cover w-full h-full"
+                      unoptimized
                     />
                   ) : (
                     product.image_url ? (
@@ -121,6 +123,7 @@ export default function ProductVariantCard({ product }: { product: Product }) {
                         width={56}
                         height={56}
                         className="object-cover w-full h-full opacity-50"
+                        unoptimized
                       />
                     ) : (
                       <span className="text-zinc-500 text-lg">🍽️</span>
@@ -135,24 +138,10 @@ export default function ProductVariantCard({ product }: { product: Product }) {
 
       {/* Información del producto */}
       <div className="flex-1 flex flex-col">
-        <h3 className="text-sm md:text-xl font-bold mb-1 md:mb-2 line-clamp-2 leading-tight">{product.name}</h3>
-        <p
-          className={`text-gray-300 mb-1 md:mb-3 text-xs md:text-sm leading-relaxed ${
-            descriptionExpanded ? '' : 'line-clamp-3'
-          } md:line-clamp-3`}
-        >
+        <h3 className="text-sm md:text-xl font-bold mb-1 md:mb-2 leading-tight">{product.name}</h3>
+        <p className="text-gray-300 mb-2 md:mb-3 text-xs md:text-sm leading-relaxed">
           {product.description}
         </p>
-        {product.description && product.description.length > 120 && (
-          <button
-            type="button"
-            className="md:hidden self-start text-yellow-400 text-xs font-semibold hover:underline mb-1"
-            aria-expanded={descriptionExpanded}
-            onClick={() => setDescriptionExpanded((prev) => !prev)}
-          >
-            {descriptionExpanded ? 'Ver menos' : 'Ver más'}
-          </button>
-        )}
         
         {/* Categoría */}
         {product.category && (

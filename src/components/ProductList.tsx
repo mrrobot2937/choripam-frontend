@@ -1,7 +1,6 @@
 "use client";
 
 import { useCart } from "../contexts/CartContext";
-import { useState, useCallback } from "react";
 import Image from "next/image";
 
 type Product = {
@@ -14,11 +13,6 @@ type Product = {
 
 export default function ProductList({ products }: { products: Product[] }) {
   const { cart, addToCart, removeFromCart } = useCart();
-  const [expandedById, setExpandedById] = useState<Record<number, boolean>>({});
-
-  const toggleExpanded = useCallback((id: number) => {
-    setExpandedById((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
 
   function getQuantity(productId: number) {
     return cart.find((item) => item.id === productId)?.quantity || 0;
@@ -28,7 +22,6 @@ export default function ProductList({ products }: { products: Product[] }) {
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
       {products.map((product) => {
         const quantity = getQuantity(product.id);
-        const expanded = !!expandedById[product.id];
         return (
           <div key={product.id} className="bg-zinc-900 rounded-3xl p-4 shadow-2xl hover:shadow-amber-400/10 transform-gpu hover:-translate-y-0.5 transition-all flex flex-col gap-3 border border-zinc-800 hover:border-yellow-400 relative overflow-hidden group h-full">
             {/* Imagen del producto - Mejorada para imágenes cuadradas */}
@@ -40,6 +33,7 @@ export default function ProductList({ products }: { products: Product[] }) {
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300" 
+                  unoptimized
                 />
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500">
@@ -50,18 +44,8 @@ export default function ProductList({ products }: { products: Product[] }) {
             </div>
             
             <div className="flex-1 flex flex-col">
-              <h3 className="text-lg md:text-xl font-bold mb-1 md:mb-2 line-clamp-2 leading-tight">{product.name}</h3>
-              <p className={`text-gray-300 mb-1 md:mb-3 text-sm leading-relaxed ${expanded ? '' : 'line-clamp-3'} md:line-clamp-3`}>{product.description}</p>
-              {product.description && product.description.length > 120 && (
-                <button
-                  type="button"
-                  className="md:hidden self-start text-yellow-400 text-xs font-semibold hover:underline mb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 rounded"
-                  aria-expanded={expanded}
-                  onClick={() => toggleExpanded(product.id)}
-                >
-                  {expanded ? 'Ver menos' : 'Ver más'}
-                </button>
-              )}
+              <h3 className="text-lg md:text-xl font-bold mb-1 md:mb-2 leading-tight">{product.name}</h3>
+              <p className="text-gray-300 mb-2 md:mb-3 text-sm leading-relaxed">{product.description}</p>
               <span className="text-yellow-400 font-extrabold text-lg mb-3">${product.price.toLocaleString()}</span>
               
             {/* Controles de cantidad */}
